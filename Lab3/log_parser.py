@@ -60,7 +60,7 @@ def convert_to_type(value, type):
             return None
     except ValueError:
         return value
-    
+
 
 def is_white_spece(char):
     return char in [' ', '\t', '\n']
