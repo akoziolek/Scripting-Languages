@@ -1,6 +1,9 @@
 import sys
+import re
 from datetime import datetime 
-
+import log_filter_by_extension
+import log_filter_by_code
+            
 # list of column names and their types
 COLUMN_TYPES = [
     ('ts', 'datetime'),
@@ -33,7 +36,7 @@ COLUMN_TYPES = [
 ]
 
 #CZY CHCEMY WCZYTAC TYLKO 10 PIERWSZYCH
-
+#jeszcze patternem mozna zrobic
 def parse_log():
     rows = []
     for line in sys.stdin:
@@ -58,6 +61,7 @@ def convert_to_type(value, type):
             return datetime.fromtimestamp(float(value))
         else:
             return None
+
     except ValueError:
         return value
 
@@ -73,4 +77,11 @@ def print_log():
         print(repr(line))
     
 if __name__ == '__main__':
-    parse_log()
+    log = parse_log()
+    #l = log_filter_by_code.get_entries_by_code(log, 80
+
+    l = log_filter_by_extension.get_entries_by_extension(log, 'dll')
+    for row in l:   
+        print(row)
+  
+    
