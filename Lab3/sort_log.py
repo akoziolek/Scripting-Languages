@@ -1,8 +1,6 @@
 def sort_log(current_log, index):
-    def func(x):
-        return x[index]
     try:
-        current_log.sort(key=func)
+        current_log.sort(key=lambda x : x[index])
     except TypeError:
         raise(TypeError("Cannot sort by selected index - type not comparable"))
     except IndexError:
@@ -11,5 +9,5 @@ def sort_log(current_log, index):
 
 
 if __name__ == '__main__':
-    log = [(1,2,3,4), (4,2,3,1), (3,1,4,2), (2, 1, 3, 4)]
+    log = [(1,2,3,4), (4,2,3,1), (3,1,4,2), (2,1,3,4)]
     print(sort_log(log, int(input())))
