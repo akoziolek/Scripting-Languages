@@ -1,7 +1,7 @@
 import sys
-import re
 from datetime import datetime 
 
+            
 # list of column names and their types
 COLUMN_TYPES = [
     ('ts', 'datetime'),
@@ -33,8 +33,6 @@ COLUMN_TYPES = [
     ('resp_mime_types', 'str')
 ]
 
-#CZY CHCEMY WCZYTAC TYLKO 10 PIERWSZYCH
-
 def parse_log():
     rows = []
     for line in sys.stdin:
@@ -62,13 +60,6 @@ def convert_to_type(value, type):
 
     except ValueError:
         return value
-    
-
-def is_white_spece(char):
-    return char in [' ', '\t', '\n']
-
-def is_line_end(char):
-    return char in ['\n']
   
 def print_log():
     for line in sys.stdin:
