@@ -101,7 +101,6 @@ public class FileAnalyzer {
         }
         json.append("\b\b\n");
         json.append("}");
-        System.out.println(json.toString());
         return json.toString();
     }
 
