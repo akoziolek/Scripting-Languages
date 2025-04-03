@@ -2,6 +2,8 @@ import os
 import sys
 from pathlib import Path
 
+#windows separator :
+#unix separator ;
 
 def print_path():
     for path in os.getenv('PATH', '').split(os.pathsep):
@@ -10,11 +12,10 @@ def print_path():
 
 def is_executable(file_path):
     if sys.platform == 'win32':
-        # W Windows sprawdzamy rozszerzenia plików wykonywalnych
+        # W Windows sprawdzamy rozszerzenia plików wykonywalnych    
         return file_path.is_file() and file_path.suffix.lower() in ('.exe', '.bat', '.cmd', '.ps1', '.com')
-    else:
-        # W Unix-like sprawdzamy uprawnienia do wykonania
-        return file_path.is_file() and os.access(file_path, os.X_OK)
+    # W Unix-like sprawdzamy uprawnienia do wykonania
+    return file_path.is_file() and os.access(file_path, os.X_OK)
 
 def find_execs():
     for path in os.getenv('PATH', '').split(os.pathsep):
@@ -28,4 +29,5 @@ def find_execs():
 
 
 if __name__ == '__main__':
+    print_path()
     find_execs()
