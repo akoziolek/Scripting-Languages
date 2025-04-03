@@ -8,5 +8,5 @@
 def get_entries_by_code(log, HTTP_code):
     if not isinstance(HTTP_code, int) and (HTTP_code < 100 or HTTP_code > 599):
         raise ValueError('Invalid HTTP code')
-    return [row for row in log if row[6] == HTTP_code]
+    return [row for row in log if row[14] == HTTP_code]
 
