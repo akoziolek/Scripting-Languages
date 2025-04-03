@@ -6,13 +6,13 @@ from pprint import pprint
 
 def run_analysis(dir_path):
     path = Path(dir_path)
-
     if not path.is_dir(): raise Exception(f"Error {path} is not a directory")
     
     text_files = list(path.glob('*.txt'))
     statistics = []
 
     for file in text_files:
+        #invoking subprocess, capturing stdout, stderr
         process = Popen(['java', 'FileAnalyzer', str(file)], stdout=PIPE, stderr=PIPE, text=True)
         stdout, stderr = process.communicate()
         if process.returncode == 0:
@@ -20,8 +20,6 @@ def run_analysis(dir_path):
         else:
             print(f"Error processing {file.name}: {stderr}")
 
-        
-     
     return statistics
 
 def analysis_stats(statistics):
@@ -46,12 +44,9 @@ def analysis_stats(statistics):
         if result['most common word'][1] < stat['most_common_word_count']:
             result['most common word'] = (stat['most_common_word'], stat['most_common_word_count'])
 
-    #extracting only the char, not frequency
-    result['most common char'] = result['most common char'][0]
-    result['most common word'] = result['most common word'][0]
-
     pprint(result)
     return result
+
 
 if __name__ == '__main__':    
     if len(sys.argv) < 1:
