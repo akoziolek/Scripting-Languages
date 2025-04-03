@@ -54,15 +54,15 @@ def main():
             continue
 
         program = 'magick' if file_type == 'image' else 'ffmpeg'
-        output_path = convert_file(file_path, args.format, output_path, program)
-        if not output_path:
+        output_file_path = convert_file(file_path, args.format, output_path, program)
+        if not output_file_path:
             continue
 
         entry = {
             'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             'original_path': file_path,
             'output_format': args.format,
-            'output_path': output_path,
+            'output_path': output_file_path,
             'program': program
         }
         utils.log_conversion(history_path, entry, formatting='csv')
