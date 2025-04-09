@@ -9,7 +9,6 @@ def print_path():
     for path in os.getenv('PATH', '').split(os.pathsep):
         if path: print(path)
 
-
 def is_executable(file_path):
     if sys.platform == 'win32':
         # W Windows sprawdzamy rozszerzenia plików wykonywalnych    
