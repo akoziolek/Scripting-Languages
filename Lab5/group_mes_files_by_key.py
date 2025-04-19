@@ -18,8 +18,7 @@ def get_measurement_by_key(dir_path):
 
     pprint(files)
     return files
-
-
+#czy powinno być z WindowsPath ?
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         raise Exception('Expected one argument.')
