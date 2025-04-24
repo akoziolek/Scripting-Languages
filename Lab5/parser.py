@@ -2,6 +2,9 @@ import csv
 import console_logger, logging
 import os
 from pathlib import Path
+from os import listdir
+from datetime import datetime, timedelta
+
 
 logger = logging.getLogger(__name__)
 
@@ -108,8 +111,56 @@ def parse_metadata(path, enable_logging=False):
         if enable_logging: logger.info(f'File :{file.name}" has been closed')
 
 
+def parse_metadata_dict(path, enable_logging=False):
+    validate_path(path, '.csv', True)
 
+    try:
+        with open (path, 'r', encoding='UTF-8') as file:
+            if enable_logging: logger.info(f'File "{file.name}" has been opened')
+            result = {}       
+            reader = csv.DictReader(file)
+            skip_keys = ['Nr', 'Kod stacji']
+
+            for row in reader:
+                log_read_bytes(convert_to_csv_line(row), enable_logging)
+                result[row['Kod stacji']] = {k: v for k, v in row.items() if k not in skip_keys}
+            return result
+    except:
+        if enable_logging: logger.error(f'An error occured while reading "{path}" file')
+
+    finally:
+        if enable_logging: logger.info(f'File :{file.name}" has been closed')
+
+
+
+def parse(metadata: Path, measurements:Path):
+    result = parse_metadata_dict(metadata)
+    files = listdir(measurements)
+
+    files_to_skip = ['2023_Depozycja_1m.csv']
+    keys_to_skip = ['Nr', 'Wskaźnik', 'Czas uśredniania', 'Kod stanowiska','Kod stacji']
+
+    for file in files:
+        if file in files_to_skip:
+            continue
+
+        reader = parse_data(f"{measurements}/{file}")
+        
+        for row in reader:
+            station_code = row['Kod stacji']
+            stanowisko_code = row['Kod stanowiska']
+
+            result[station_code].setdefault('Pomiary', {}) # Ensure that 'Pomiary' dicts exist
+
+            result[station_code]['Pomiary'][stanowisko_code] = {
+                k: v for k, v in row.items() if k not in keys_to_skip
+            }
+
+    return result
+    
 if __name__ == '__main__':
     print(parse_data('data/measurements/2023_As(PM10)_24g.csv', True)[0])
-    print()
-    print(parse_metadata('data/stacje.csv', True)[0])
+    # print()
+    # print(parse_metadata('data/stacje.csv', True)[0])
+    # parse('data/stacje.csv', 'data/measurements')
+    
