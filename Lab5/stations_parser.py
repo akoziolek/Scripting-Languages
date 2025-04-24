@@ -1,53 +1,103 @@
-import sys
-import pandas as pd
-from itertools import islice
 import re
 from pprint import pprint
-#zostawiam w spokoju
+import parser
+ 
+POLISH_TO_LATIN_NO_SPACES = {
+    'ą': 'a',
+    'ć': 'c',
+    'ę': 'e',
+    'ł': 'l',
+    'ń': 'n',
+    'ó': 'o',
+    'ś': 's',
+    'ź': 'z',
+    'ż': 'z',
+    'Ą': 'A',
+    'Ć': 'C',
+    'Ę': 'E',
+    'Ł': 'L',
+    'Ń': 'N',
+    'Ó': 'O',
+    'Ś': 'S',
+    'Ź': 'Z',
+    'Ż': 'Z',
+    " ": "_"   
+}
 
-#narazie wczytywanie w kazdej funkcji pliku, ale po skończeniu pierwszego zadania mozna je tu uzyc
-#jesli byloby w stanie dane pola wyluskac to byloby juz latwiej 
-
-def get_dates(csv_file):
+def get_dates(csv_file_path):
+    stations = parser.parse_metadata(csv_file_path)
     dates = []
-    with open(csv_file, 'r', encoding='utf-8') as file:
-        for line in islice(file, 2, None): #skipping first line
-            dates.append(re.findall(r'\b\d{4}-\d{2}-\d{2}\b', line))
-            #print(line)
-            #print(dates[-1])
+    pattern = re.compile(r'\b\d{4}-\d{2}-\d{2}\b')
 
-    pprint(dates)
+    for station in stations:
+        current_dates = []
+        for date in station['Data uruchomienia'], station['Data zamknięcia']:
+            if pattern.match(date): current_dates.append(date)
+
+        dates.append(current_dates)
+
     return dates
 
-def get_latitude_and_longitude(csv_file):
+def get_latitude_and_longitude(csv_file_path):
+    stations = parser.parse_metadata(csv_file_path)
     coordinates = []
-    with open(csv_file, 'r', encoding='utf-8') as file:
-        for line in islice(file, 2, None):
-            coordinates.append(re.findall(r'\b\d{1,3}.\d{6}\b', line))
-            print(coordinates[-1])
-            print(line)
+    pattern = re.compile(r'\b\d{1,3}.\d{6}\b')
 
-    #pprint(coordinates)
+    for station in stations:
+        current_coordinates = []
+        for coordinate in station['Długość geograficzna'], station['Szerokość geograficzna']:
+            if pattern.match(coordinate): current_coordinates.append(coordinate)
+        
+        coordinates.append(current_coordinates)
+
     return coordinates
 
-#zakladam ze chodzi o nazwy, w ktorych - jest otoczony spacjami, bo inaczej to idk za duzo mozliwosci wychodzi
-#^-poczatek, .+dowolny ciag znakow, \s-\s myslnik otoczony spacjami.+dowolny ciag po myslniku, $ koniec linii
-#tutaj zwracam juz jedynie stacje z myślnikami, a nie wszytskie
-def get_names_with_two_parts(csv_file):
-    names = []
-    with open(csv_file, 'r', encoding='utf-8') as file:
-        for line in islice(file, 3, None):
-            matched = re.findall(r'\b^.+\s-\s.+$\b', line) #ewentualnie bez tych spacji
-            if matched:
-                names.append(matched)
-            
-            print(names[-1])
-            print(line)
+def get_names_with_two_parts(csv_file_path):
+    stations = parser.parse_metadata(csv_file_path)
+    pattern = re.compile(r'^[^-,]+\s*-\s*[^-,]+$') #(r'^[^-,]+\s*-\s*[^-,]+$')
+    for st in stations:
+        if re.match(r'.*-.*', st['Nazwa stacji']): print(st['Nazwa stacji'])
+    return [station['Nazwa stacji'] for station in stations if pattern.match(re.sub(r'\(.*?\)|".*?"', '', station['Nazwa stacji']))] #nie bierzemy pod uwage myślników w () i ""
 
-    pprint(names)
-    print(len(names))
+def rename_stations_names(csv_file_path):
+    stations = parser.parse_metadata(csv_file_path)
+    pattern = re.compile('|'.join(POLISH_TO_LATIN_NO_SPACES.keys()))
+
+    for station in stations:
+        station['Nazwa stacji'] = pattern.sub(lambda c: POLISH_TO_LATIN_NO_SPACES[c.group()], station['Nazwa stacji'])
+
+    return stations
+
+def are_MOB(csv_file_path):
+    stations = parser.parse_metadata(csv_file_path)
+    pattern_code = re.compile(r'.*MOB$')
+    pattern_type = re.compile(r'^mobilna$')
+    return [station for station in stations if pattern_code.match(station['Kod stacji']) and not pattern_type.match(station['Rodzaj stacji'])]
+
+
+#dla lokalizacji nie ma wiecej niz 1 -, wiec zakladam ze chodzi o nazwe stacji
+#tutaj juz wersja ze spacjami i bez '-' ' - '
+def three_part_locations(csv_file_path):
+    stations = parser.parse_metadata(csv_file_path)
+    # pattern = re.compile(r'^(?:[^-,]+(?: - [^-,]+){2}|[^-,]+(?:-[^-,]+){2})$')
+    pattern = re.compile(r'^(?:[^-,]+(?:\s*-\s*[^-,]+){2})$')
+
+    return [station['Nazwa stacji'] for station in stations if pattern.match(re.sub(r'\(.*?\)', '', station['Nazwa stacji']))] #usuwam nawiasy, bo tam tez sa mysliniki 
+
+
+def get_streets(csv_file_path):
+    stations = parser.parse_metadata(csv_file_path)
+    pattern = re.compile(r'^(?:ul\.|al\.).+,.+$')
+    return [station['Adres'] for station in stations if pattern.match(station['Adres'])]
+
 
 if __name__ == '__main__':
-    #get_dates(sys.argv[1])
-    #get_latitude_and_longitude(sys.argv[1])
-    get_names_with_two_parts(sys.argv[1])
+
+    # pprint(get_dates('./data/stacje.csv'))
+    # pprint(get_latitude_and_longitude('./data/stacje.csv'))
+    pprint(get_names_with_two_parts('./data/stacje.csv'))
+    # pprint(are_MOB('./data/stacje.csv'))
+    # pprint(get_names_with_two_parts('./data/stacje.csv'))
+    # pprint(rename_stations_names('./data/stacje.csv')[:10])
+    # pprint(three_part_locations('./data/stacje.csv'))
+    # pprint(get_streets('./data/stacje.csv'))
