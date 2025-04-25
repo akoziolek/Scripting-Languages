@@ -163,27 +163,7 @@ def parse(metadata: Path, measurements: Path):
             pomiary[stanowisko_code] = {
                 k: v for k, v in station_data['Pomiary'].items() if k not in keys_to_skip
             }
-        """ station_data = result.setdefault(reader['Kod stacji'], {})
-        pomiary = station_data.setdefault('Pomiary', {})
-        pomiary.update(reader['Pomiary']) """
-
-    """  # Process each row in the transposed data
-        for row in reader:
-            station_code = row.get('Kod stacji')
-            stanowisko_code = row.get('Kod stanowiska')
-
-            if not station_code or not stanowisko_code:
-                continue  # Skip rows with missing station or stanowisko codes
-
-            # Ensure 'Pomiary' exists for the station
-            station_data = result.setdefault(station_code, {})
-            pomiary = station_data.setdefault('Pomiary', {})
-
-            # Add measurements for the stanowisko
-            pomiary[stanowisko_code] = {
-                k: v for k, v in row.items() if k not in keys_to_skip
-            }
- """
+       
     return result
 
 if __name__ == '__main__':

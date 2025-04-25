@@ -84,6 +84,8 @@ if __name__ == "__main__":
                     all_measurements.append({
                         "time": dt,
                         "value": fv,
+                        "station": args.station,
+                        "parameter": args.parameter
                     })
                 except:
                     continue
