@@ -39,6 +39,7 @@ def detect_anomalies(measurements, delta_threshold=200, none_threshold=0.2, alar
         prev_value = val
 
     none_ratio = none_count / len(measurements)
+    
     if none_ratio > none_threshold:
         print(f"Too many none/inccorect values: {none_ratio:.1%}")
 

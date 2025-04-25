@@ -27,7 +27,7 @@ POLISH_TO_LATIN_NO_SPACES = {
 def get_dates(csv_file_path):
     stations = parser.parse_metadata(csv_file_path)
     dates = []
-    pattern = re.compile(r'\b\d{4}-\d{2}-\d{2}\b')
+    pattern = re.compile(r'^\d{4}-\d{2}-\d{2}$')
 
     for station in stations:
         current_dates = []
@@ -41,7 +41,7 @@ def get_dates(csv_file_path):
 def get_latitude_and_longitude(csv_file_path):
     stations = parser.parse_metadata(csv_file_path)
     coordinates = []
-    pattern = re.compile(r'\b\d{1,3}.\d{6}\b')
+    pattern = re.compile(r'^\d{1,3}.\d{6}$')
 
     for station in stations:
         current_coordinates = []
@@ -55,8 +55,7 @@ def get_latitude_and_longitude(csv_file_path):
 def get_names_with_two_parts(csv_file_path):
     stations = parser.parse_metadata(csv_file_path)
     pattern = re.compile(r'^[^-,]+\s*-\s*[^-,]+$') #(r'^[^-,]+\s*-\s*[^-,]+$')
-    for st in stations:
-        if re.match(r'.*-.*', st['Nazwa stacji']): print(st['Nazwa stacji'])
+    
     return [station['Nazwa stacji'] for station in stations if pattern.match(re.sub(r'\(.*?\)|".*?"', '', station['Nazwa stacji']))] #nie bierzemy pod uwage myślników w () i ""
 
 def rename_stations_names(csv_file_path):
@@ -76,7 +75,6 @@ def are_MOB(csv_file_path):
 
 
 #dla lokalizacji nie ma wiecej niz 1 -, wiec zakladam ze chodzi o nazwe stacji
-#tutaj juz wersja ze spacjami i bez '-' ' - '
 def three_part_locations(csv_file_path):
     stations = parser.parse_metadata(csv_file_path)
     # pattern = re.compile(r'^(?:[^-,]+(?: - [^-,]+){2}|[^-,]+(?:-[^-,]+){2})$')
@@ -94,8 +92,8 @@ def get_streets(csv_file_path):
 if __name__ == '__main__':
 
     # pprint(get_dates('./data/stacje.csv'))
-    # pprint(get_latitude_and_longitude('./data/stacje.csv'))
-    pprint(get_names_with_two_parts('./data/stacje.csv'))
+    pprint(get_latitude_and_longitude('./data/stacje.csv'))
+    # pprint(get_names_with_two_parts('./data/stacje.csv'))
     # pprint(are_MOB('./data/stacje.csv'))
     # pprint(get_names_with_two_parts('./data/stacje.csv'))
     # pprint(rename_stations_names('./data/stacje.csv')[:10])

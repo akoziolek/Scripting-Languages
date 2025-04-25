@@ -8,6 +8,23 @@ import io
 
 logger = logging.getLogger(__name__)
 
+metanames = ["Nr",
+             "Kod stacji",
+             "Kod międzynarodowy",
+             "Nazwa stacji",
+             "Stary Kod stacji",
+             "Data uruchomienia",
+             "Data zamknięcia",
+             "Typ stacji",
+             "Typ obszaru",
+             "Rodzaj stacji",
+             "Województwo",
+             "Miejscowość",
+             "Adres",
+             "Długość geograficzna",
+             "Szerokość geograficzna"]
+
+
 def validate_path(file_path, format, enable_logging=False):
     if not os.path.exists(file_path):
         if enable_logging: logger.error(f'Path "{file_path}" doesn\'t exist')
@@ -50,8 +67,6 @@ def parse_data(path, enable_logging=False):
                 for j in range(1,len(line)):
                     loglist[j-1].update({line[0] : line[j]})
 
-
-
             for dic in loglist:
                 dic.update({'Pomiary' : {}})
 
@@ -73,96 +88,60 @@ def parse_data(path, enable_logging=False):
     # Lista słowników, z czego każdy słownik zawiera dane jednej stacji - klucz nazwa zmiennej wartość wartość,
     # pomiary są jedną z tych zmiennych o nazwie "Pomiary", wartość jest słownikiem klucz data wartość wynik pomiaru
 
-
-metanames = ["Nr",
-             "Kod stacji",
-             "Kod międzynarodowy",
-             "Nazwa stacji",
-             "Stary Kod stacji",
-             "Data uruchomienia",
-             "Data zamknięcia",
-             "Typ stacji",
-             "Typ obszaru",
-             "Rodzaj stacji",
-             "Województwo",
-             "Miejscowość",
-             "Adres",
-             "Długość geograficzna",
-             "Szerokość geograficzna"]
-
-def parse_metadata(path, enable_logging=False):
-    validate_path(path, '.csv', True)
+def parse_metadata(path, enable_logging=False, as_dict=False,) -> dict | list:
+    validate_path(path, '.csv', enable_logging)
 
     try:
-        with open (path, 'r', encoding='UTF-8') as file:
-            if enable_logging: logger.info(f'File "{file.name}" has been opened')
-            reader = csv.reader(file)
-            header = next(reader)
-            log_read_bytes(convert_to_csv_line(header), enable_logging)
+        with open(path, 'r', encoding='UTF-8') as file:
+            if enable_logging:
+                logger.info(f'File "{file.name}" has been opened')
 
-            loglist = []
-            for line in reader:
-                log_read_bytes(convert_to_csv_line(line), enable_logging)
-                loglist.append(dict(zip(metanames, line)))
-            return loglist
-    except:
-        if enable_logging: logger.error(f'An error occured while reading "{path}" file')
-
-    finally:
-        if enable_logging: logger.info(f'File :{file.name}" has been closed')
-
-
-def parse_metadata_dict(path, enable_logging=False):
-    validate_path(path, '.csv', True)
-
-    try:
-        with open (path, 'r', encoding='UTF-8') as file:
-            if enable_logging: logger.info(f'File "{file.name}" has been opened')
-            result = {}       
             reader = csv.DictReader(file)
             skip_keys = ['Nr', 'Kod stacji']
+            result = {} if as_dict else []
 
             for row in reader:
-                log_read_bytes(convert_to_csv_line(row), enable_logging)
-                result[row['Kod stacji']] = {k: v for k, v in row.items() if k not in skip_keys}
+                log_read_bytes(convert_to_csv_line(row.values()), enable_logging)
+                if as_dict:
+                    station_code = row.get('Kod stacji')
+                    if station_code:
+                        filtered_row = {k: v for k, v in row.items() if k not in skip_keys}
+                        result[station_code] = filtered_row
+                else:
+                    result.append(row)
+
             return result
-    except:
-        if enable_logging: logger.error(f'An error occured while reading "{path}" file')
+
+    except Exception as e:
+        if enable_logging:
+            logger.error(f'An error occurred while reading "{path}" file: {e}')
+        raise 
 
     finally:
-        if enable_logging: logger.info(f'File :{file.name}" has been closed')
+        if enable_logging:
+            logger.info(f'File "{path}" has been closed')
 
 
 def parse(metadata: Path, measurements: Path):
-    result = parse_metadata_dict(metadata) #slownik ze stacjami, kod stacji - wartosci
-
+    result = parse_metadata(metadata, as_dict=True) # dict of station code - other info
     files = listdir(measurements)
-
-    files_to_skip = ['2023_Depozycja_1m.csv']
     
-    for file in files: #pliki z pomiarami
-        if file in files_to_skip:
-            continue
+    for file in files: # measurements files
+    
+        reader = parse_data(f"{measurements}/{file}")  # list of dict
 
-        reader = parse_data(f"{measurements}/{file}")  # Lista słowników z danymi pomiarowymi
-
-        # Process each station in the measurement file
-        for station_data in reader:
+        for station_data in reader: # process each station in the measurement file
             station_code = station_data.get('Kod stacji') 
 
-            if not station_code:
-                continue
+            if not station_code: continue
 
-            # Ensure the station exists in the metadata
-            station_metadata = result.setdefault(station_code, {})
+            station_metadata = result.setdefault(station_code, {}) # ensure the station exists in the metadata
             pomiary = station_metadata.setdefault('Pomiary', {})
-
-            # Add measurements to the station
             stanowisko_code = station_data.get('Kod stanowiska', 'Unknown')
-            pomiary[stanowisko_code] = pomiary.get(stanowisko_code, {})
-            pomiary[stanowisko_code].update(station_data['Pomiary'])
 
-    return result
+            pomiary.setdefault(stanowisko_code, {}).update(station_data['Pomiary'])
+
+    return result # dict of stations with data and Pomiary for different Kod stanowiska
 
 if __name__ == '__main__':
     # print(parse_data('data/measurements/2023_As(PM10)_24g.csv')[0])
