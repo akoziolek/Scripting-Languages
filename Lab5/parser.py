@@ -139,8 +139,7 @@ def parse(metadata: Path, measurements: Path):
     files = listdir(measurements)
 
     files_to_skip = ['2023_Depozycja_1m.csv']
-    keys_to_skip = ['Nr', 'Jednostka', 'Wskaźnik', 'Czas uśredniania', 'Kod stanowiska', 'Kod stacji']
-
+    
     for file in files: #pliki z pomiarami
         if file in files_to_skip:
             continue
@@ -149,10 +148,10 @@ def parse(metadata: Path, measurements: Path):
 
         # Process each station in the measurement file
         for station_data in reader:
-            station_code = station_data.get('Kod stacji')  # Pobierz Kod stacji
+            station_code = station_data.get('Kod stacji') 
 
             if not station_code:
-                continue  # Pomijaj wiersze bez Kod stacji
+                continue
 
             # Ensure the station exists in the metadata
             station_metadata = result.setdefault(station_code, {})
@@ -160,10 +159,9 @@ def parse(metadata: Path, measurements: Path):
 
             # Add measurements to the station
             stanowisko_code = station_data.get('Kod stanowiska', 'Unknown')
-            pomiary[stanowisko_code] = {
-                k: v for k, v in station_data['Pomiary'].items() if k not in keys_to_skip
-            }
-       
+            pomiary[stanowisko_code] = pomiary.get(stanowisko_code, {})
+            pomiary[stanowisko_code].update(station_data['Pomiary'])
+
     return result
 
 if __name__ == '__main__':
