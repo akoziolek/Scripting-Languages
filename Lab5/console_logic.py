@@ -52,6 +52,7 @@ def handle_random(args):
     random_file = filelist[random.randint(0, len(filelist) - 1)]
     data = parser.parse_data('./data/measurements/' + random_file)
     filtered_data = list(filter(isCorrect, data))
+    
     if not filtered_data:
         logger.warning("No stations found with the appropriate data.")
         return

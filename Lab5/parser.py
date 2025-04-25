@@ -3,7 +3,7 @@ import console_logger, logging
 import os
 from pathlib import Path
 from os import listdir
-from datetime import datetime, timedelta
+import io
 
 
 logger = logging.getLogger(__name__)
@@ -73,6 +73,7 @@ def parse_data(path, enable_logging=False):
     # Lista słowników, z czego każdy słownik zawiera dane jednej stacji - klucz nazwa zmiennej wartość wartość,
     # pomiary są jedną z tych zmiennych o nazwie "Pomiary", wartość jest słownikiem klucz data wartość wynik pomiaru
 
+
 metanames = ["Nr",
              "Kod stacji",
              "Kod międzynarodowy",
@@ -132,35 +133,70 @@ def parse_metadata_dict(path, enable_logging=False):
         if enable_logging: logger.info(f'File :{file.name}" has been closed')
 
 
+def parse(metadata: Path, measurements: Path):
+    result = parse_metadata_dict(metadata) #slownik ze stacjami, kod stacji - wartosci
 
-def parse(metadata: Path, measurements:Path):
-    result = parse_metadata_dict(metadata)
     files = listdir(measurements)
 
     files_to_skip = ['2023_Depozycja_1m.csv']
-    keys_to_skip = ['Nr', 'Wskaźnik', 'Czas uśredniania', 'Kod stanowiska','Kod stacji']
+    keys_to_skip = ['Nr', 'Jednostka', 'Wskaźnik', 'Czas uśredniania', 'Kod stanowiska', 'Kod stacji']
 
-    for file in files:
+    for file in files: #pliki z pomiarami
         if file in files_to_skip:
             continue
 
-        reader = parse_data(f"{measurements}/{file}")
-        
+        reader = parse_data(f"{measurements}/{file}")  # Lista słowników z danymi pomiarowymi
+
+        # Process each station in the measurement file
+        for station_data in reader:
+            station_code = station_data.get('Kod stacji')  # Pobierz Kod stacji
+
+            if not station_code:
+                continue  # Pomijaj wiersze bez Kod stacji
+
+            # Ensure the station exists in the metadata
+            station_metadata = result.setdefault(station_code, {})
+            pomiary = station_metadata.setdefault('Pomiary', {})
+
+            # Add measurements to the station
+            stanowisko_code = station_data.get('Kod stanowiska', 'Unknown')
+            pomiary[stanowisko_code] = {
+                k: v for k, v in station_data['Pomiary'].items() if k not in keys_to_skip
+            }
+        """ station_data = result.setdefault(reader['Kod stacji'], {})
+        pomiary = station_data.setdefault('Pomiary', {})
+        pomiary.update(reader['Pomiary']) """
+
+    """  # Process each row in the transposed data
         for row in reader:
-            station_code = row['Kod stacji']
-            stanowisko_code = row['Kod stanowiska']
+            station_code = row.get('Kod stacji')
+            stanowisko_code = row.get('Kod stanowiska')
 
-            result[station_code].setdefault('Pomiary', {}) # Ensure that 'Pomiary' dicts exist
+            if not station_code or not stanowisko_code:
+                continue  # Skip rows with missing station or stanowisko codes
 
-            result[station_code]['Pomiary'][stanowisko_code] = {
+            # Ensure 'Pomiary' exists for the station
+            station_data = result.setdefault(station_code, {})
+            pomiary = station_data.setdefault('Pomiary', {})
+
+            # Add measurements for the stanowisko
+            pomiary[stanowisko_code] = {
                 k: v for k, v in row.items() if k not in keys_to_skip
             }
-
+ """
     return result
-    
+
 if __name__ == '__main__':
-    print(parse_data('data/measurements/2023_As(PM10)_24g.csv', True)[0])
+    # print(parse_data('data/measurements/2023_As(PM10)_24g.csv')[0])
     # print()
-    # print(parse_metadata('data/stacje.csv', True)[0])
-    # parse('data/stacje.csv', 'data/measurements')
+    # print(parse_metadata('data/stacje.csv')[0])
     
+    result = parse('data/stacje.csv', 'data/measurements')
+
+    for i, (key, value) in enumerate(result.items()):
+        if i >= 10:  # Display only the first 10 entries
+            break
+        print(f"Entry {i + 1}:")
+        print(f"Key: {key}")
+        print(f"Value: {value}")
+        print("-" * 40)
