@@ -1,6 +1,5 @@
 from typing import NamedTuple
 import console_logic
-
 import typer
 
 app = typer.Typer()
