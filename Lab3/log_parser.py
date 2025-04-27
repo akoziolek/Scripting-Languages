@@ -66,5 +66,4 @@ def print_log():
         print(repr(line))
     
 if __name__ == '__main__':
-    log = parse_log()
-
+    parse_log()
