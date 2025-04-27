@@ -85,17 +85,17 @@ def three_part_locations(csv_file_path):
 
 def get_streets(csv_file_path):
     stations = parser.parse_metadata(csv_file_path)
-    pattern = re.compile(r'^(?:ul\.|al\.).+,.+$')
+    pattern = re.compile(r'^(?:ul\.|al\.)\s*[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s]+,\s*.+$')
     return [station['Adres'] for station in stations if pattern.match(station['Adres'])]
 
 
 if __name__ == '__main__':
 
     # pprint(get_dates('./data/stacje.csv'))
-    pprint(get_latitude_and_longitude('./data/stacje.csv'))
+    # pprint(get_latitude_and_longitude('./data/stacje.csv'))
     # pprint(get_names_with_two_parts('./data/stacje.csv'))
     # pprint(are_MOB('./data/stacje.csv'))
     # pprint(get_names_with_two_parts('./data/stacje.csv'))
     # pprint(rename_stations_names('./data/stacje.csv')[:10])
     # pprint(three_part_locations('./data/stacje.csv'))
-    # pprint(get_streets('./data/stacje.csv'))
+    pprint(get_streets('./data/stacje.csv'))

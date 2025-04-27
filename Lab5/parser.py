@@ -3,7 +3,7 @@ import console_logger, logging
 import os
 from pathlib import Path
 from os import listdir
-import io
+import datetime
 
 
 logger = logging.getLogger(__name__)
@@ -72,6 +72,16 @@ def parse_data(path, enable_logging=False):
 
             for line in reader:
                 log_read_bytes(convert_to_csv_line(line), enable_logging)
+                date = line[0]
+                if date in loglist[0]['Pomiary']:
+                    date = datetime.strptime(date, '%m/%d/%y %H:%M')
+                    date += datetime.timedelta(hours=12)
+                    date = date.strftime('%m/%d/%y %H:%M')
+                for i in range(1,len(line)):
+                    loglist[i-1]['Pomiary'].update({date : line[i]})
+
+            for line in reader:
+                log_read_bytes(convert_to_csv_line(line), enable_logging)
 
                 for i in range(1,len(line)):
                     loglist[i-1]['Pomiary'].update({line[0] : line[i]})
@@ -122,38 +132,8 @@ def parse_metadata(path, enable_logging=False, as_dict=False,) -> dict | list:
             logger.info(f'File "{path}" has been closed')
 
 
-def parse(metadata: Path, measurements: Path):
-    result = parse_metadata(metadata, as_dict=True) # dict of station code - other info
-    files = listdir(measurements)
-    
-    for file in files: # measurements files
-    
-        reader = parse_data(f"{measurements}/{file}")  # list of dict
-
-        for station_data in reader: # process each station in the measurement file
-            station_code = station_data.get('Kod stacji') 
-
-            if not station_code: continue
-
-            station_metadata = result.setdefault(station_code, {}) # ensure the station exists in the metadata
-            pomiary = station_metadata.setdefault('Pomiary', {})
-            stanowisko_code = station_data.get('Kod stanowiska', 'Unknown')
-
-            pomiary.setdefault(stanowisko_code, {}).update(station_data['Pomiary'])
-
-    return result # dict of stations with data and Pomiary for different Kod stanowiska
 
 if __name__ == '__main__':
     # print(parse_data('data/measurements/2023_As(PM10)_24g.csv')[0])
     # print()
-    # print(parse_metadata('data/stacje.csv')[0])
-    
-    result = parse('data/stacje.csv', 'data/measurements')
-
-    for i, (key, value) in enumerate(result.items()):
-        if i >= 10:  # Display only the first 10 entries
-            break
-        print(f"Entry {i + 1}:")
-        print(f"Key: {key}")
-        print(f"Value: {value}")
-        print("-" * 40)
+    print(parse_metadata('data/stacje.csv')[0])
