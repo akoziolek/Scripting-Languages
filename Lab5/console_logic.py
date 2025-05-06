@@ -7,8 +7,6 @@ import console_logger, logging
 import parser
 from itertools import groupby
 
-
-
 logger = logging.getLogger(__name__)
 
 def getFiles(args):
@@ -141,6 +139,7 @@ ANOMALIES = {
    },
 }
 
+# lista pomiarów (czas, wartość, stacja, wielkość)
 def anomalies_analysis(measurements):
     # Zakładam że moga byc to pomiary z różnych stacji o różnych wartościach
     measurements.sort(key=lambda x:(x[2], x[3]))
