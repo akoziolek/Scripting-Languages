@@ -23,6 +23,19 @@ POLISH_TO_LATIN_NO_SPACES = {
     'Ż': 'Z',
     " ": "_"   
 }
+""" 
+^ - początek ciągu znaków
+$ - koniec ciągu znaków
+\d - cyfra dziesiętna
+{n} - określona liczba powtórzeń
+* - 0..n znaków
++ - 1..n znaków
+[^-,] - nie myślnik, przecinek
+\s - znak biały
+\(.*?\) - niezachłannie dopasowujemy dowolną liczbę znaków w nawiasach
+(?:) - tworzenie grupy bez referencji
+(?=) -look ahead
+"""
 
 def get_dates(csv_file_path):
     stations = parser.parse_metadata(csv_file_path)
@@ -54,13 +67,13 @@ def get_latitude_and_longitude(csv_file_path):
 
 def get_names_with_two_parts(csv_file_path):
     stations = parser.parse_metadata(csv_file_path)
-    pattern = re.compile(r'^[^-,]+\s*-\s*[^-,]+$') #(r'^[^-,]+\s*-\s*[^-,]+$')
+    pattern = re.compile(r'^(?=.*[A-Za-z]\s*-\s*.*[A-Za-z])[^-,]+\s*-\s*[^-,]+$') 
     
     return [station['Nazwa stacji'] for station in stations if pattern.match(re.sub(r'\(.*?\)|".*?"', '', station['Nazwa stacji']))] #nie bierzemy pod uwage myślników w () i ""
 
 def rename_stations_names(csv_file_path):
     stations = parser.parse_metadata(csv_file_path)
-    pattern = re.compile('|'.join(POLISH_TO_LATIN_NO_SPACES.keys()))
+    pattern = re.compile('|'.join(POLISH_TO_LATIN_NO_SPACES.keys())) #'ą|ć|ę|ł|ń|ó|ś|ź|ż|Ą|Ć|Ę|Ł|Ń|Ó|Ś|Ź|Ż|'
 
     for station in stations:
         station['Nazwa stacji'] = pattern.sub(lambda c: POLISH_TO_LATIN_NO_SPACES[c.group()], station['Nazwa stacji'])
@@ -78,16 +91,23 @@ def are_MOB(csv_file_path):
 def three_part_locations(csv_file_path):
     stations = parser.parse_metadata(csv_file_path)
     # pattern = re.compile(r'^(?:[^-,]+(?: - [^-,]+){2}|[^-,]+(?:-[^-,]+){2})$')
-    pattern = re.compile(r'^(?:[^-,]+(?:\s*-\s*[^-,]+){2})$')
+    pattern = re.compile(r'^(?=.*[A-Za-z]\s*-\s*.*[A-Za-z]\s*-\s*.*[A-Za-z])[^-,]+(\s*-\s*[^-,]+){2}$')
 
-    return [station['Nazwa stacji'] for station in stations if pattern.match(re.sub(r'\(.*?\)', '', station['Nazwa stacji']))] #usuwam nawiasy, bo tam tez sa mysliniki 
+    return [station['Nazwa stacji'] for station in stations if pattern.match(re.sub(r'\(.*?\)|".*?"', '', station['Nazwa stacji']))] #usuwam nawiasy, bo tam tez sa mysliniki 
 
 
 def get_streets(csv_file_path):
     stations = parser.parse_metadata(csv_file_path)
-    pattern = re.compile(r'^(?:ul\.|al\.)\s*[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s]+,\s*.+$')
-    return [station['Adres'] for station in stations if pattern.match(station['Adres'])]
+    letters = "A-Za-ząćęłńóśźżĄĆĘŁŃÓŚŹŻ"
+    alphanumeric = f"{letters}0-9"
 
+    pattern = re.compile(
+        rf"^(?:ul\.|al\.)\s*"
+        rf"[{alphanumeric}\s]*[{letters}][{alphanumeric}\s]*,"
+        rf"\s*[{alphanumeric}\s]*[{letters}][{alphanumeric}\s]*$"
+    )
+
+    return [station['Adres'] for station in stations if pattern.match(station['Adres'])]
 
 if __name__ == '__main__':
 
