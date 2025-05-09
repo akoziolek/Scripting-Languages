@@ -19,10 +19,13 @@ class TimeSeries():
             if key < 0 or key >= len(self.mes_values):
                 raise IndexError(f'Index {key} is out of range.')
             return self.mes_dates[key], self.mes_values[key]
+        
         elif isinstance(key, slice):
             return list(zip(self.mes_dates[key], self.mes_values[key]))
+        
         elif isinstance(key, datetime):
             return self.mes_values[self.mes_dates.index(key)]
+        
         elif isinstance(key, date):
             results = []
             for d, v in zip(self.mes_dates, self.mes_values):
