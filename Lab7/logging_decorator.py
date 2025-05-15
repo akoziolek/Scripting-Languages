@@ -37,6 +37,8 @@ def log(level=logging.DEBUG):
                 logger.log(level, f'Elapsed time: {end-start:.8f}')
                 logger.log(level, f'Result of {instance.__name__}: {result}')
             return wrapper
+        return None
+
     return decorator
 
 @log()
