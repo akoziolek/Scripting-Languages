@@ -34,7 +34,7 @@ $ - koniec ciągu znaków
 \s - znak biały
 \(.*?\) - niezachłannie dopasowujemy dowolną liczbę znaków w nawiasach
 (?:) - tworzenie grupy bez referencji
-(?=) -look ahead
+(?=) - look ahead
 """
 
 def get_dates(csv_file_path):
