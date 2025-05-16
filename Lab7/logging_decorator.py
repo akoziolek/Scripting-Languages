@@ -37,6 +37,8 @@ def log_dec(level=logging.DEBUG):
                 logger_config.log(level, f'Result of {instance.__name__}: {result}')
                 return result
             return wrapper
+        return None
+
     return decorator
 
 @log_dec()
