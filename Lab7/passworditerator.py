@@ -9,10 +9,12 @@ class PasswordIterator:
         self.count = count
 
     def __iter__(self):
-        for i in range(self.count):
-            yield self.generate_password()
+        return self
 
-    def generate_password(self):
+    def __next__(self):
+        self.count -= 1
+        if self.count < 0:
+            raise StopIteration
         password = ''
         for i in range(self.length):
             password += random.choice(self.charset)
@@ -20,5 +22,9 @@ class PasswordIterator:
 
 
 if __name__ == '__main__':
-    for password in PasswordIterator(10, string.ascii_letters, 10):
+    iter = PasswordIterator(10, string.ascii_letters, 10)
+    for password in iter:
         print(password)
+    for password in iter:
+        print(password)
+    print(next(iter))
