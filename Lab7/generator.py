@@ -3,6 +3,7 @@ from functools import cache
 import ast
 import inspect
 import textwrap
+from logging_decorator import log_dec
 
 def timer(func):
     def wrapper(*args, **kwargs):
@@ -17,6 +18,7 @@ def print_n_from_generator(gen, n, extra_line=False):
     res = ' '.join(str(next(gen)) for _ in range(n))
     print(f'\n{res}' if extra_line else res)
 
+@log_dec()
 def make_generator(function):
     arg = 1
     def generator(arg):
@@ -114,9 +116,3 @@ print_n_from_generator(fib3_generator, 10, True)
 
 print('Rec fibbonaci - cached generator:')
 print_n_from_generator(fib3_generator, 10, True)
-
-fib2_generator = make_gen_mem(fib_tail)
-print('Rec fibbonaci:')
-print_n_from_generator(fib2_generator, 10)
-
-print(fib2_generator(10))
