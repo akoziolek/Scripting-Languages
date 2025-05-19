@@ -1,6 +1,6 @@
 import sys
 import logging
-import Lab7.logger_config as logger_config
+import logger_config 
 import inspect
 from time import perf_counter
 from functools import wraps
@@ -11,7 +11,6 @@ def log_dec(level=logging.DEBUG):
     def decorator(instance):
         if isinstance(instance, type):
             old_init = instance.__init__
-            
             @wraps(instance)
             def new__init__(self, *args, **kwargs):
                 logger_config.log(level, f'Start of object {instance.__name__} initialization')

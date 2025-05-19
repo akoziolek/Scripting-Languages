@@ -116,3 +116,13 @@ print_n_from_generator(fib3_generator, 10, True)
 
 print('Rec fibbonaci - cached generator:')
 print_n_from_generator(fib3_generator, 10, True)
+
+
+
+# def mem(f):
+#     @cache
+#     def memoized(f, *args):
+#         return f(*args)
+#     return memoized
+
+# fib_rec = mem(fib_rec, 2)
