@@ -1,8 +1,9 @@
 import sys
-from PySide6.QtWidgets import (QApplication, QMainWindow, QLabel, QTextEdit, QWidget, QVBoxLayout, QHBoxLayout, 
-                               QPushButton, QGridLayout, QLineEdit, QListWidget, QDateTimeEdit, QSizePolicy, QGroupBox, QFormLayout)
+from PySide6.QtWidgets import (QApplication, QMainWindow, QLabel, QWidget, QVBoxLayout, QHBoxLayout, 
+                               QPushButton, QLineEdit, QListWidget, QDateTimeEdit, QSizePolicy, QGroupBox, QFormLayout)
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
+from datetime import datetime, timedelta
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -11,6 +12,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Log browser')
         self.setWindowIcon(QIcon('./assets/app_icon2.png'))
         self.setGeometry(250, 150, 1000, 700)
+        # self.setStyleSheet('background-color: #2b2b2b;')
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -36,10 +38,16 @@ class MainWindow(QMainWindow):
 
         log_info_group = QGroupBox("Log content")
         log_info_group.setLayout(QVBoxLayout())
+
         self.log_details_widget = LogDetailsWidget()
         log_info_group.layout().addWidget(self.log_details_widget)
         main_layout.addWidget(log_info_group, 2)
         
+        self.num_of_logs = QLabel("Number of loaded logs: 0")
+
+        self.status_bar = self.statusBar()
+        self.status_bar.addWidget(self.num_of_logs)
+        self.status_bar.setStyleSheet('background-color: #454f5e;')
 
         main_widget = QWidget()
         main_widget.setLayout(main_layout)
@@ -51,20 +59,29 @@ class MainWindow(QMainWindow):
 class FileSearchWidget(QWidget):
     def __init__(self):
         super().__init__()
+        self.setObjectName("FileSearchWidget") 
         self.__init_ui()
+        
     
     def __init_ui(self):
         main_layout = QHBoxLayout()
+        
 
         self.path_input = QLineEdit(placeholderText='Insert log file path', clearButtonEnabled=True)
         self.browse_button = QPushButton('...')
         self.browse_button.setMaximumWidth(30)
         self.open_button = QPushButton('Open')
+        
 
         main_layout.addWidget(self.path_input, 1)
         main_layout.addWidget(self.browse_button)
         main_layout.addWidget(self.open_button)
-        self.setLayout(main_layout)        
+        self.setLayout(main_layout)  
+        self.setStyleSheet("""
+            #FileSearchWidget {
+                background-color: #000000;
+            }
+        """)    
     
 class DateSelectWidget(QWidget):
     def __init__(self):
@@ -77,10 +94,12 @@ class DateSelectWidget(QWidget):
         self.from_label = QLabel('From', alignment=Qt.AlignRight | Qt.AlignVCenter)
         self.from_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.from_date = QDateTimeEdit()
+        self.from_date.setDateTime(datetime.now() - timedelta(days=1))
 
         self.to_label = QLabel('To', alignment=Qt.AlignRight | Qt.AlignVCenter)
         self.to_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.to_date = QDateTimeEdit()
+        self.to_date.setDateTime(datetime.now())
 
         self.filter_button = QPushButton('Filter')
 
@@ -125,6 +144,7 @@ class LogDetailsWidget(QWidget):
         layout.addRow("UID:", self.uid_label)
         layout.addRow("Level:", self.level_label)
         layout.addRow("Message:", self.message_label)
+        layout.addRow("...", self.message_label)
 
         self.setLayout(layout)
 
@@ -135,7 +155,7 @@ class LogContentWidget(QWidget):
     
     def __init_ui(self):
         main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(10, 10, 10, 0)
+        # main_layout.setContentsMargins(10, 10, 10, 50)
 
         self.log_content_widget = QListWidget()
         self.log_content_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -146,6 +166,18 @@ class LogContentWidget(QWidget):
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+
+    app.setStyleSheet("""
+    QWidget {
+        font-family: 'Segoe UI';
+        font-size: 12px;
+    }
+    #FileSearchWidget {
+        background-color: #000000;
+    }
+""")
+
+
     window = MainWindow()
     window.show()
     app.exec()
