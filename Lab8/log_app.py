@@ -194,29 +194,6 @@ class LogDetailsWidget(QWidget):
         self.setLayout(layout)
 
 
-
-    ('trans_depth', 'int64'),
-    ('method', 'str'),
-    ('host', 'str'),
-    ('uri', 'str'),
-    ('referrer', 'str'),
-    ('user_agent', 'str'),
-    ('request_body_len', 'int64'),
-    ('response_body_len', 'int64'),
-    ('status_code', 'float64'),
-    ('status_msg', 'str'),
-    ('info_code', 'float64'),
-    ('info_msg', 'str'),
-    ('filename', 'float64'),
-    ('tags', 'str'),
-    ('username', 'str'),
-    ('password', 'float64'),
-    ('proxied', 'str'),
-    ('orig_fuids', 'str'),
-    ('orig_mime_types', 'str'),
-    ('resp_fuids', 'str'),
-    ('resp_mime_types', 'str')
-
 class LogContentWidget(QWidget):
     def __init__(self):
         super().__init__()
