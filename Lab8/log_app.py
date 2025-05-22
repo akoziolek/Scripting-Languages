@@ -11,8 +11,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle('Log browser')
         self.setWindowIcon(QIcon('./assets/app_icon2.png'))
-        self.setGeometry(250, 150, 1000, 700)
-        # self.setStyleSheet('background-color: #2b2b2b;')
+        self.setGeometry(75, 75, 1300, 700)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -77,11 +76,7 @@ class FileSearchWidget(QWidget):
         main_layout.addWidget(self.browse_button)
         main_layout.addWidget(self.open_button)
         self.setLayout(main_layout)  
-        self.setStyleSheet("""
-            #FileSearchWidget {
-                background-color: #000000;
-            }
-        """)    
+      
     
 class DateSelectWidget(QWidget):
     def __init__(self):
@@ -135,18 +130,92 @@ class LogDetailsWidget(QWidget):
     def __init_ui(self):
         layout = QFormLayout()  # automatycznie tworzy kolumnę "nazwa - wartość"
 
-        self.timestamp_label = QLabel("-")
-        self.uid_label = QLabel("-")
-        self.level_label = QLabel("-")
-        self.message_label = QLabel("-")
+        self.timestamp_label = QLabel("-", wordWrap=True)
+        self.uid_label = QLabel("-", wordWrap=True)
+        self.level_label = QLabel("-", wordWrap=True)
+        self.message_label = QLabel("-", wordWrap=True)
+        self.host_ip_label = QLabel("-", wordWrap=True)
+        self.host_port_label = QLabel("-", wordWrap=True)
+        self.server_ip_label = QLabel("-", wordWrap=True)
+        self.server_port_label = QLabel("-", wordWrap=True)
+        self.trans_depth_label = QLabel("-", wordWrap=True)
+        self.method_label = QLabel("-", wordWrap=True)
+        self.host_label = QLabel("-", wordWrap=True)
+        self.uri_label = QLabel("-", wordWrap=True)
+        self.referrer_label = QLabel("-", wordWrap=True)
+        self.user_agent_label = QLabel("-", wordWrap=True)
+        self.request_body_len_label = QLabel("-", wordWrap=True)
+        self.response_body_len_label = QLabel("-", wordWrap=True)
+        self.status_code_label = QLabel("-", wordWrap=True)
+        self.status_msg_label = QLabel("-", wordWrap=True)
+        self.info_code_label = QLabel("-", wordWrap=True)
+        self.info_msg_label = QLabel("-", wordWrap=True)
+        self.filename_label = QLabel("-", wordWrap=True)
+        self.tags_label = QLabel("-", wordWrap=True)
+        self.username_label = QLabel("-", wordWrap=True)
+        self.password_label = QLabel("-", wordWrap=True)
+        self.proxied_label = QLabel("-", wordWrap=True)
+        self.orig_fuids_label = QLabel("-", wordWrap=True)
+        self.orig_mime_types_label = QLabel("-", wordWrap=True)
+        self.resp_fuids_label = QLabel("-", wordWrap=True)
+        self.resp_mime_types_label = QLabel("-", wordWrap=True)
 
         layout.addRow("Timestamp:", self.timestamp_label)
         layout.addRow("UID:", self.uid_label)
         layout.addRow("Level:", self.level_label)
         layout.addRow("Message:", self.message_label)
-        layout.addRow("...", self.message_label)
+        layout.addRow("Host IP:", self.host_ip_label)
+        layout.addRow("Host Port:", self.host_port_label)
+        layout.addRow("Server IP:", self.server_ip_label)
+        layout.addRow("Server Port:", self.server_port_label)
+        layout.addRow("Trans Depth:", self.trans_depth_label)
+        layout.addRow("Method:", self.method_label)
+        layout.addRow("Host:", self.host_label)
+        layout.addRow("URI:", self.uri_label)
+        layout.addRow("Referrer:", self.referrer_label)
+        layout.addRow("User Agent:", self.user_agent_label)
+        layout.addRow("Request Body Length:", self.request_body_len_label)
+        layout.addRow("Response Body Length:", self.response_body_len_label)
+        layout.addRow("Status Code:", self.status_code_label)
+        layout.addRow("Status Message:", self.status_msg_label)
+        layout.addRow("Info Code:", self.info_code_label)
+        layout.addRow("Info Message:", self.info_msg_label)
+        layout.addRow("Filename:", self.filename_label)
+        layout.addRow("Tags:", self.tags_label)
+        layout.addRow("Username:", self.username_label)
+        layout.addRow("Password:", self.password_label)
+        layout.addRow("Proxied:", self.proxied_label)
+        layout.addRow("Orig FUIds:", self.orig_fuids_label)
+        layout.addRow("Orig MIME Types:", self.orig_mime_types_label)
+        layout.addRow("Resp FUIds:", self.resp_fuids_label)
+        layout.addRow("Resp MIME Types:", self.resp_mime_types_label)
+
 
         self.setLayout(layout)
+
+
+
+    ('trans_depth', 'int64'),
+    ('method', 'str'),
+    ('host', 'str'),
+    ('uri', 'str'),
+    ('referrer', 'str'),
+    ('user_agent', 'str'),
+    ('request_body_len', 'int64'),
+    ('response_body_len', 'int64'),
+    ('status_code', 'float64'),
+    ('status_msg', 'str'),
+    ('info_code', 'float64'),
+    ('info_msg', 'str'),
+    ('filename', 'float64'),
+    ('tags', 'str'),
+    ('username', 'str'),
+    ('password', 'float64'),
+    ('proxied', 'str'),
+    ('orig_fuids', 'str'),
+    ('orig_mime_types', 'str'),
+    ('resp_fuids', 'str'),
+    ('resp_mime_types', 'str')
 
 class LogContentWidget(QWidget):
     def __init__(self):
@@ -171,9 +240,6 @@ if __name__ == '__main__':
     QWidget {
         font-family: 'Segoe UI';
         font-size: 12px;
-    }
-    #FileSearchWidget {
-        background-color: #000000;
     }
 """)
 
