@@ -129,67 +129,19 @@ class LogDetailsWidget(QWidget):
 
     def __init_ui(self):
         layout = QFormLayout()  # automatycznie tworzy kolumnę "nazwa - wartość"
+        self.detail_labels = []
 
-        self.timestamp_label = QLabel("-", wordWrap=True)
-        self.uid_label = QLabel("-", wordWrap=True)
-        self.level_label = QLabel("-", wordWrap=True)
-        self.message_label = QLabel("-", wordWrap=True)
-        self.host_ip_label = QLabel("-", wordWrap=True)
-        self.host_port_label = QLabel("-", wordWrap=True)
-        self.server_ip_label = QLabel("-", wordWrap=True)
-        self.server_port_label = QLabel("-", wordWrap=True)
-        self.trans_depth_label = QLabel("-", wordWrap=True)
-        self.method_label = QLabel("-", wordWrap=True)
-        self.host_label = QLabel("-", wordWrap=True)
-        self.uri_label = QLabel("-", wordWrap=True)
-        self.referrer_label = QLabel("-", wordWrap=True)
-        self.user_agent_label = QLabel("-", wordWrap=True)
-        self.request_body_len_label = QLabel("-", wordWrap=True)
-        self.response_body_len_label = QLabel("-", wordWrap=True)
-        self.status_code_label = QLabel("-", wordWrap=True)
-        self.status_msg_label = QLabel("-", wordWrap=True)
-        self.info_code_label = QLabel("-", wordWrap=True)
-        self.info_msg_label = QLabel("-", wordWrap=True)
-        self.filename_label = QLabel("-", wordWrap=True)
-        self.tags_label = QLabel("-", wordWrap=True)
-        self.username_label = QLabel("-", wordWrap=True)
-        self.password_label = QLabel("-", wordWrap=True)
-        self.proxied_label = QLabel("-", wordWrap=True)
-        self.orig_fuids_label = QLabel("-", wordWrap=True)
-        self.orig_mime_types_label = QLabel("-", wordWrap=True)
-        self.resp_fuids_label = QLabel("-", wordWrap=True)
-        self.resp_mime_types_label = QLabel("-", wordWrap=True)
+        for i in range(27):
+            self.detail_labels.append(QLabel("-", wordWrap=True))
 
-        layout.addRow("Timestamp:", self.timestamp_label)
-        layout.addRow("UID:", self.uid_label)
-        layout.addRow("Level:", self.level_label)
-        layout.addRow("Message:", self.message_label)
-        layout.addRow("Host IP:", self.host_ip_label)
-        layout.addRow("Host Port:", self.host_port_label)
-        layout.addRow("Server IP:", self.server_ip_label)
-        layout.addRow("Server Port:", self.server_port_label)
-        layout.addRow("Trans Depth:", self.trans_depth_label)
-        layout.addRow("Method:", self.method_label)
-        layout.addRow("Host:", self.host_label)
-        layout.addRow("URI:", self.uri_label)
-        layout.addRow("Referrer:", self.referrer_label)
-        layout.addRow("User Agent:", self.user_agent_label)
-        layout.addRow("Request Body Length:", self.request_body_len_label)
-        layout.addRow("Response Body Length:", self.response_body_len_label)
-        layout.addRow("Status Code:", self.status_code_label)
-        layout.addRow("Status Message:", self.status_msg_label)
-        layout.addRow("Info Code:", self.info_code_label)
-        layout.addRow("Info Message:", self.info_msg_label)
-        layout.addRow("Filename:", self.filename_label)
-        layout.addRow("Tags:", self.tags_label)
-        layout.addRow("Username:", self.username_label)
-        layout.addRow("Password:", self.password_label)
-        layout.addRow("Proxied:", self.proxied_label)
-        layout.addRow("Orig FUIds:", self.orig_fuids_label)
-        layout.addRow("Orig MIME Types:", self.orig_mime_types_label)
-        layout.addRow("Resp FUIds:", self.resp_fuids_label)
-        layout.addRow("Resp MIME Types:", self.resp_mime_types_label)
+        self.detail_row_labels = [
+            "Timestamp", "UID", "Host IP", "Host Port", "Server IP", "Server Port", "Trans Depth", "Method", "Host", "URI",
+            "Referrer", "User Agent", "Request Body Length", "Response Body Length", "Status Code",
+            "Status Message", "Info Code", "Info Message", "Filename", "Tags", "Username",
+            "Password", "Proxied", "Orig FUIds", "Orig MIME Types", "Resp FUIds", "Resp MIME Types"]
 
+        for label, title in zip(self.detail_labels, self.detail_row_labels):
+            layout.addRow(title + ":", label)
 
         self.setLayout(layout)
 
@@ -201,7 +153,6 @@ class LogContentWidget(QWidget):
     
     def __init_ui(self):
         main_layout = QVBoxLayout()
-        # main_layout.setContentsMargins(10, 10, 10, 50)
 
         self.log_content_widget = QListWidget()
         self.log_content_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
