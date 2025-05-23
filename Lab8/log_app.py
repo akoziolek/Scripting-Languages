@@ -3,13 +3,15 @@ import sys
 from PySide6 import QtWidgets
 from PySide6.QtWidgets import (QApplication, QMainWindow, QLabel, QWidget, QVBoxLayout, QHBoxLayout,
                                QPushButton, QLineEdit, QListWidget, QDateTimeEdit, QSizePolicy, QGroupBox, QFormLayout,
-                               QFileDialog)
+                               QFileDialog, QListView, QListWidgetItem)
 from PySide6.QtGui import QIcon
+from PySide6.QtGui import QFontMetrics
 from PySide6.QtCore import Qt, Signal
 from datetime import datetime, timedelta
-from Lab3.log_parser import parse_log
-from Lab3.log_filter_by_timestamp import get_entries_by_timestamp
-
+from log_parser import parse_log
+from log_filter_by_timestamp import get_entries_by_timestamp
+import os
+# import
 class MainWindow(QMainWindow):
     update_master = Signal(list[str])
     update_detail = Signal(list[str])
@@ -21,7 +23,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle('Log browser')
         self.setWindowIcon(QIcon('./assets/app_icon2.png'))
-        self.setGeometry(75, 75, 1300, 700)
+        self.setGeometry(50, 50, 1300, 800)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -87,7 +89,10 @@ class MainWindow(QMainWindow):
             with open(path, 'r') as file:
                 result = parse_log(file, convert=False)
             self.last_loaded_path = path
-            string_result = [", ".join(log) for log in result]
+            string_result = [] 
+            for row in result:
+                string_thing = ", ".join(row)
+                string_result.append(string_thing if len(string_thing) < 100 else string_thing[:100] + '...\n')
             self.log_lookup = dict(zip(string_result, result))
             self.date_choice_widget.set_dates(
                 datetime.fromtimestamp(float(result[0][0])),
@@ -96,15 +101,14 @@ class MainWindow(QMainWindow):
             self.date_choice_widget.handle_filtering()
         except FileNotFoundError:
             QtWidgets.QMessageBox.critical(self, 'Error', 'File not found.')
-        except Exception:
-            QtWidgets.QMessageBox.critical(self, 'Error', 'Incorrect file format.')
+        
 
 
     def handle_browse(self):
         file_path, _ = QFileDialog.getOpenFileName(
             parent=self,
             caption="Select a File",
-            dir = r"C:\Users\emilia\PycharmProjects\Scripting-Languages\Lab3",
+            dir = os.getcwd(),
             filter="Log Files (*.log)"
         )
         self.searching_widget.set_field(file_path)
@@ -206,6 +210,7 @@ class DateSelectWidget(QWidget):
         from_timestamp = self.from_date.dateTime().toSecsSinceEpoch()
         to_timestamp = self.to_date.dateTime().toSecsSinceEpoch()
         self.filtering.emit(from_timestamp, to_timestamp)
+
     def set_dates(self, begin_timestamp, end_timestamp):
         self.from_date.setDateTime(begin_timestamp)
         self.to_date.setDateTime(end_timestamp)
@@ -292,15 +297,24 @@ class LogContentWidget(QWidget):
         main_layout = QVBoxLayout()
 
         self.log_content_widget = QListWidget()
-        self.log_content_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.log_content_widget.itemSelectionChanged.connect(self.handle_selection)
-        
+        # self.log_content_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # self.log_content_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.log_content_widget.itemSelectionChanged.connect(self.handle_selection)        
         main_layout.addWidget(self.log_content_widget)
         self.setLayout(main_layout)
 
     def set_content(self, content):
         self.log_content_widget.clear()
-        self.log_content_widget.addItems(content)
+        metrics = QFontMetrics(self.log_content_widget.font())
+        max_width = 2000  
+
+        for line in content:
+            elided = metrics.elidedText(line, Qt.ElideRight, max_width)
+            item = QListWidgetItem(elided)
+            self.log_content_widget.addItem(item)
+
+        # self.log_content_widget.clear()
+        # self.log_content_widget.addItems(content)
 
     def handle_selection(self):
         selection = self.log_content_widget.currentItem()
