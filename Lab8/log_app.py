@@ -89,10 +89,7 @@ class MainWindow(QMainWindow):
             with open(path, 'r') as file:
                 result = parse_log(file, convert=False)
             self.last_loaded_path = path
-            string_result = [] 
-            for row in result:
-                string_thing = ", ".join(row)
-                string_result.append(string_thing if len(string_thing) < 100 else string_thing[:100] + '...\n')
+            string_result = [", ".join(log) for log in result]
             self.log_lookup = dict(zip(string_result, result))
             self.date_choice_widget.set_dates(
                 datetime.fromtimestamp(float(result[0][0])),
@@ -297,8 +294,6 @@ class LogContentWidget(QWidget):
         main_layout = QVBoxLayout()
 
         self.log_content_widget = QListWidget()
-        # self.log_content_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # self.log_content_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.log_content_widget.itemSelectionChanged.connect(self.handle_selection)        
         main_layout.addWidget(self.log_content_widget)
         self.setLayout(main_layout)
@@ -306,15 +301,15 @@ class LogContentWidget(QWidget):
     def set_content(self, content):
         self.log_content_widget.clear()
         metrics = QFontMetrics(self.log_content_widget.font())
-        max_width = 2000  
+        max_width = 850  
 
         for line in content:
             elided = metrics.elidedText(line, Qt.ElideRight, max_width)
+            if len(elided) > 0 and elided[-1] != '\n':
+                elided += '\n'
             item = QListWidgetItem(elided)
             self.log_content_widget.addItem(item)
 
-        # self.log_content_widget.clear()
-        # self.log_content_widget.addItems(content)
 
     def handle_selection(self):
         selection = self.log_content_widget.currentItem()
