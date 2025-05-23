@@ -34,7 +34,7 @@ $ - koniec ciągu znaków
 \s - znak biały
 \(.*?\) - niezachłannie dopasowujemy dowolną liczbę znaków w nawiasach
 (?:) - tworzenie grupy bez referencji
-(?=) -look ahead
+(?=) - look ahead
 """
 
 def get_dates(csv_file_path):
@@ -67,6 +67,7 @@ def get_latitude_and_longitude(csv_file_path):
 
 def get_names_with_two_parts(csv_file_path):
     stations = parser.parse_metadata(csv_file_path)
+# pattern = re.compile(r'^(?=.*[A-Za-z].*\s*-\s*.*[A-Za-z].*)[^-,]+\s*-\s*[^-,]+$') 
     pattern = re.compile(r'^(?=.*[A-Za-z]\s*-\s*.*[A-Za-z])[^-,]+\s*-\s*[^-,]+$') 
     
     return [station['Nazwa stacji'] for station in stations if pattern.match(re.sub(r'\(.*?\)|".*?"', '', station['Nazwa stacji']))] #nie bierzemy pod uwage myślników w () i ""
@@ -90,7 +91,7 @@ def are_MOB(csv_file_path):
 #dla lokalizacji nie ma wiecej niz 1 -, wiec zakladam ze chodzi o nazwe stacji
 def three_part_locations(csv_file_path):
     stations = parser.parse_metadata(csv_file_path)
-    # pattern = re.compile(r'^(?:[^-,]+(?: - [^-,]+){2}|[^-,]+(?:-[^-,]+){2})$')
+    # pattern = re.compile(r'(?=.*[A-Za-z].*\s*-\s*.*[A-Za-z].*\s*-\s*.*[A-Za-z].*)[^-,]+(\s*-\s*[^-,]+){2}$')
     pattern = re.compile(r'^(?=.*[A-Za-z]\s*-\s*.*[A-Za-z]\s*-\s*.*[A-Za-z])[^-,]+(\s*-\s*[^-,]+){2}$')
 
     return [station['Nazwa stacji'] for station in stations if pattern.match(re.sub(r'\(.*?\)|".*?"', '', station['Nazwa stacji']))] #usuwam nawiasy, bo tam tez sa mysliniki 
@@ -115,7 +116,7 @@ if __name__ == '__main__':
     # pprint(get_latitude_and_longitude('./data/stacje.csv'))
     # pprint(get_names_with_two_parts('./data/stacje.csv'))
     # pprint(are_MOB('./data/stacje.csv'))
-    # pprint(get_names_with_two_parts('./data/stacje.csv'))
+    pprint(get_names_with_two_parts('./data/stacje.csv'))
     # pprint(rename_stations_names('./data/stacje.csv')[:10])
     # pprint(three_part_locations('./data/stacje.csv'))
-    pprint(get_streets('./data/stacje.csv'))
+    # pprint(get_streets('./data/stacje.csv'))

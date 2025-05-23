@@ -33,27 +33,29 @@ COLUMN_TYPES = [
     ('resp_mime_types', 'str')
 ]
 
-def parse_log():
+def parse_log(stream = sys.stdin, convert = True):
     rows = []
-    for line in sys.stdin:
+    for line in stream:
         current = line.split('\t')
         if len(current) == len(COLUMN_TYPES): #accept rows of expected length
             for i in range(len(current)):
-                current[i] = convert_to_type(current[i], COLUMN_TYPES[i][1])
+                current[i] = convert_to_type(current[i], COLUMN_TYPES[i][1]) if convert else current[i]
             rows.append(tuple(current))
+        else:
+            raise IndexError("Incorrect format.")
     return rows
 
-def convert_to_type(value, type):
+def convert_to_type(value, new_type):
     if value == '' or value == '-' or value is None:
         return None
     try:
-        if type == 'int64':
+        if new_type == 'int64':
             return int(value)
-        elif type == 'float64':
+        elif new_type == 'float64':
             return float(value)
-        elif type == 'str':
+        elif new_type == 'str':
             return str(value)
-        elif type == 'datetime':
+        elif new_type == 'datetime':
             return datetime.fromtimestamp(float(value))
         else:
             return None

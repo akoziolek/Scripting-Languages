@@ -157,7 +157,7 @@ def anomalies_analysis(measurements):
         max_change = ANOMALIES[key[1]][ANOMALIES_CHANGE]
         max_value = ANOMALIES[key[1]][ANOMALIES_THRESHOLD]
 
-        for time, value, station, parameter in group:
+        for time, value, _, _ in group:
             if value is None or value == '' or float(value) <= 0:
                 none_count += 1
                 continue
