@@ -13,17 +13,15 @@ from log_filter_by_timestamp import get_entries_by_timestamp
 import os
 # import
 class MainWindow(QMainWindow):
-    update_master = Signal(list[str])
-    update_detail = Signal(list[str])
     def __init__(self):
         super().__init__()
 
         self.last_loaded_path = None
-        self.log_lookup = None
+        self.lookup_from_string = None
 
         self.setWindowTitle('Log browser')
         self.setWindowIcon(QIcon('./assets/app_icon2.png'))
-        self.setGeometry(50, 50, 1300, 800)
+        self.setGeometry(50, 50, 1300, 850)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -89,8 +87,10 @@ class MainWindow(QMainWindow):
             with open(path, 'r') as file:
                 result = parse_log(file, convert=False)
             self.last_loaded_path = path
-            string_result = [", ".join(log) for log in result]
-            self.log_lookup = dict(zip(string_result, result))
+            string_result = []
+            for row in result:
+                string_result.append(self.makeLabel(row))
+            self.lookup_from_string = dict(zip(string_result, result))
             self.date_choice_widget.set_dates(
                 datetime.fromtimestamp(float(result[0][0])),
                 datetime.fromtimestamp(float(result[len(result) - 1][0]))
@@ -98,6 +98,8 @@ class MainWindow(QMainWindow):
             self.date_choice_widget.handle_filtering()
         except FileNotFoundError:
             QtWidgets.QMessageBox.critical(self, 'Error', 'File not found.')
+        except Exception:
+            QtWidgets.QMessageBox.critical(self, 'Error', 'Incorrect file format')
         
 
 
@@ -112,12 +114,12 @@ class MainWindow(QMainWindow):
         self.handle_search(file_path)
 
     def handle_filtering(self, timestamp_begin, timestamp_end):
-        if self.log_lookup is None:
+        if self.lookup_from_string is None:
             QtWidgets.QMessageBox.critical(self, 'Error', 'No log loaded.')
             return
-        logs = list(self.log_lookup.values())
+        logs = list(self.lookup_from_string.values())
         filtered_logs = get_entries_by_timestamp(logs, timestamp_begin, timestamp_end)
-        content = [", ".join(log) for log in filtered_logs]
+        content = [self.makeLabel(log) for log in filtered_logs]
         self.log_content_widget.set_content(content)
         self.num_of_logs_label.setText(str(len(content)))
         if len(content) == 0:
@@ -125,7 +127,7 @@ class MainWindow(QMainWindow):
         self.log_details_widget.clear()
 
     def handle_selected(self, text, row, number):
-        log = self.log_lookup[text]
+        log = self.lookup_from_string[text]
         self.log_details_widget.set_content(log)
         self.log_content_manager_widget.set_enabled_next(row != number - 1)
         self.log_content_manager_widget.set_enabled_prev(row != 0)
@@ -134,6 +136,13 @@ class MainWindow(QMainWindow):
         self.log_details_widget.clear()
         self.log_content_manager_widget.set_enabled_next(False)
         self.log_content_manager_widget.set_enabled_prev(False)
+
+    def makeLabel(self, row):
+        font_stuff, width = self.log_content_widget.get_content_metrics()
+        elided = font_stuff.elidedText(", ".join(row), Qt.ElideRight, width)
+        if len(elided) > 0 and elided[-1] != '\n':
+            elided += '\n'
+        return elided
 
 
 class FileSearchWidget(QWidget):
@@ -299,16 +308,12 @@ class LogContentWidget(QWidget):
         self.setLayout(main_layout)
 
     def set_content(self, content):
-        self.log_content_widget.clear()
-        metrics = QFontMetrics(self.log_content_widget.font())
-        max_width = 850  
-
-        for line in content:
-            elided = metrics.elidedText(line, Qt.ElideRight, max_width)
-            if len(elided) > 0 and elided[-1] != '\n':
-                elided += '\n'
-            item = QListWidgetItem(elided)
+        for text in content:
+            item = QListWidgetItem(text)
             self.log_content_widget.addItem(item)
+
+    def get_content_metrics(self):
+        return QFontMetrics(self.log_content_widget.font()), 850
 
 
     def handle_selection(self):
