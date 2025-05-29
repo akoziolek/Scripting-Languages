@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from log_parser import parse_log
 from log_filter_by_timestamp import get_entries_by_timestamp
 import os
-# import
+
 class MainWindow(QMainWindow):
     update_master = Signal(list[str])
     update_detail = Signal(list[str])
@@ -281,13 +281,12 @@ class LogDetailsWidget(QWidget):
             label.setText(value)
 
 
-
-
 class LogContentWidget(QWidget):
     selected = Signal(str,int,int)
     deselected = Signal()
     def __init__(self):
         super().__init__()
+        self.setObjectName('LogContenctWidget')
         self.__init_ui()
     
     def __init_ui(self):
@@ -337,7 +336,7 @@ if __name__ == '__main__':
     QWidget {
         font-family: 'Segoe UI';
         font-size: 12px;
-    }
+    },
 """)
 
 
