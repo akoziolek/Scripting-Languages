@@ -7,7 +7,7 @@ from enum import Enum
 import re
 from collections import deque
 import heapq
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Union
 
 
 class SeriesValidator(ABC):
@@ -24,7 +24,7 @@ class OutlierDetector(SeriesValidator):
         if not isinstance(series, TimeSeries):
             raise ValueError('Unexpected type of series argument')
         
-        threshold : float = series.mean + self.k * series.stddev
+        threshold: float = series.mean + self.k * series.stddev
         return [f'Measurement {series.indicator} {series.avg_time} with value {val} on {series.mes_dates[idx]} exceeded standard deviation' 
                 for idx, val in enumerate(series.mes_values) if isinstance(val, numbers.Number) and val > threshold]
 
@@ -37,14 +37,21 @@ class ZeroSpikeDetector(SeriesValidator):
 
         def assert_anomaly(end_idx: int) -> None:
             if null_count >= 3:
-                invalid_values: List[Tuple[datetime, Optional[float]]]= list(zip(series.mes_dates[end_idx - null_count:end_idx], series.mes_values[end_idx - null_count:end_idx]))
+                invalid_values: List[Tuple[Union[datetime, str], Optional[Union[float, int, str]]]] = \
+                    list(zip(series.mes_dates[end_idx - null_count:end_idx], series.mes_values[end_idx - null_count:end_idx]))
                 formatted_values: str = ", ".join([f"({d}, {v})" for d, v in invalid_values])
                 anomalies.append(f"Consecutive invalid values: {formatted_values}")
 
         for idx, val in enumerate(series.mes_values):
+            if isinstance(val, str):
+                try:
+                    val = float(val)
+                except ValueError:
+                    val = None
+                    
             if val is None or val == 0:
                 null_count += 1
-            else:
+            elif isinstance(val, (float, int)):
                 assert_anomaly(idx)
                 null_count = 0
 
