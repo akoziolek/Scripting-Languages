@@ -72,19 +72,46 @@ class TimeSeries():
         
     @property
     def mean(self) -> float:
-        filtered : List[float] = [v for v in self.mes_values if isinstance(v, (float, int))]
+        filtered: List[float] = []
+        for val in self.mes_values:
+            f = to_float(val)
+            if f is not None:
+                filtered.append(f)
         return mean(filtered)
 
     @property
     def stddev(self) -> float:
-        filtered : List[float] = [v for v in self.mes_values if isinstance(v, (float, int))]
+        filtered: List[float] = []
+        for val in self.mes_values:
+            f = to_float(val)
+            if f is not None:
+                filtered.append(f)
         return stdev(filtered)
+    
+def to_float(value: MesValuesType) -> Optional[float]:
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            return None
+    elif isinstance(value, (float, int)):
+        return float(value)
+    else:
+        return None
 
 
 if __name__ == '__main__':
     dates = [datetime(2001, 2, 4, 4, 32), datetime(2001, 2, 4), datetime(2001, 2, 5), datetime(2001, 2, 6), datetime(2001, 2, 8)]
-    measurments = [2, 4, 1, 2, 6]
+    measurments = [2, 4, 1, 2, 6.2]
     series1 = TimeSeries('DsOsieczow21', 'Jony_PM25', '24g', 'ug/m3', dates, measurments)
+    print(series1.__getitem__(slice(9, 4, 2)))
+    print(series1.__getitem__(date(2001, 2, 4)))
+    print(series1.__getitem__(datetime(2001, 2, 5)))
+    print(series1.mean)
+    print(series1.stddev)
+    
+    measurments2 = ['2', '4', '1', '2', '6.2']
+    series1 = TimeSeries('DsOsieczow21', 'Jony_PM25', '24g', 'ug/m3', dates, measurments2)
     print(series1.__getitem__(slice(9, 4, 2)))
     print(series1.__getitem__(date(2001, 2, 4)))
     print(series1.__getitem__(datetime(2001, 2, 5)))
