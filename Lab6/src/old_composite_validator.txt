@@ -1,0 +1,75 @@
+
+"""     def __get_all_messages(self, series: TimeSeries):
+        all_messages = []
+        date_pattern = re.compile(r'^.*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}).*$')
+
+        for val_idx in range(len(self.validators)):
+            messages = self.validators[val_idx].analyze(series)
+            # Deque of the date, message, index of source validator
+            all_messages.append(deque())
+
+            for m in messages:
+                dates: List[datetime] = date_pattern.findall(m)
+                if dates:
+                    # Assuming the start of the anomaly is the most important
+                    latest: datetime = min(datetime.strptime(d, "%Y-%m-%d %H:%M:%S") for d in dates)
+                    all_messages[-1].append((latest, m, val_idx))
+
+        return all_messages
+
+    def analyze(self, series:TimeSeries) -> List[str]:
+        all_messages = self.__get_all_messages(series)
+        result = []
+        heap = []
+
+        if self.mode == CompositeValidator.LogicMode.AND:
+            current_date = None
+            date_messages = {}
+
+            # Adding first messages from each validator to the priority queue
+            for message_queue in all_messages:
+                if message_queue:
+                    date, message, validator_index = message_queue.popleft()
+                    heapq.heappush(heap, (date, message, validator_index))
+
+            while heap:
+                # Poping the message with the earliest date
+                date, message, validator_index = heapq.heappop(heap)
+
+                # Keeping just one message for each validator
+                if current_date == date:
+                    date_messages[validator_index] = message
+                else:
+                    current_date = date
+                    date_messages = {validator_index: message}
+
+                # All validator have an anomaly
+                if len(date_messages) == len(self.validators):
+                    result.extend(date_messages.values()) #TU IDK CZY DOBRZE DAJE
+                    current_date = None
+                    date_messages = {}
+
+                # Add next message from the same validator
+                if len(all_messages[validator_index]) > 0:
+                    next_message = all_messages[validator_index].popleft()
+                    heapq.heappush(heap, next_message)  # Push the correct next message        
+                
+        elif self.mode == CompositeValidator.LogicMode.OR:
+            # Adding first messages from each validator to the priority queue
+            for message_queue in all_messages:
+                if message_queue:
+                    date, message, validator_index = message_queue.popleft()
+                    heapq.heappush(heap, (date, message, validator_index))
+
+            while heap:
+                date, message, validator_index = heapq.heappop(heap)
+                
+                if len(all_messages[validator_index]) > 0:
+                    heapq.heappush(heap, all_messages[validator_index].popleft())
+                
+                result.append((date, message))
+
+        else:
+            raise ValueError('Unsupported mode {self.mode}')
+        
+        return result  """
