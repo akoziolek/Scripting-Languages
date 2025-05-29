@@ -7,6 +7,8 @@ from enum import Enum
 import re
 from collections import deque
 import heapq
+from typing import List, Tuple, Optional
+
 
 class SeriesValidator(ABC):
     @abstractmethod
@@ -14,15 +16,15 @@ class SeriesValidator(ABC):
         pass
 
 class OutlierDetector(SeriesValidator):
-    def __init__(self, k):
+    def __init__(self, k: float) -> None:
         if k < 0: raise ValueError('Parameter k must be non-negative')
         self.k = k
 
-    def analyze(self, series:TimeSeries)-> List[str]:
+    def analyze(self, series: TimeSeries) -> List[str]:
         if not isinstance(series, TimeSeries):
             raise ValueError('Unexpected type of series argument')
         
-        threshold = series.mean + self.k * series.stddev
+        threshold : float = series.mean + self.k * series.stddev
         return [f'Measurement {series.indicator} {series.avg_time} with value {val} on {series.mes_dates[idx]} exceeded standard deviation' 
                 for idx, val in enumerate(series.mes_values) if isinstance(val, numbers.Number) and val > threshold]
 
@@ -30,13 +32,13 @@ class ZeroSpikeDetector(SeriesValidator):
     def analyze(self, series:TimeSeries)-> List[str]:
         if not isinstance(series, TimeSeries):
             raise ValueError('Unexpected type of series argument')
-        null_count = 0
-        anomalies = []
+        null_count: int = 0
+        anomalies: List[str] = []
 
-        def assert_anomaly(end_idx):
+        def assert_anomaly(end_idx: int) -> None:
             if null_count >= 3:
-                invalid_values = list(zip(series.mes_dates[end_idx - null_count:end_idx], series.mes_values[end_idx - null_count:end_idx]))
-                formatted_values = ", ".join([f"({d}, {v})" for d, v in invalid_values])
+                invalid_values: List[Tuple[datetime, Optional[float]]]= list(zip(series.mes_dates[end_idx - null_count:end_idx], series.mes_values[end_idx - null_count:end_idx]))
+                formatted_values: str = ", ".join([f"({d}, {v})" for d, v in invalid_values])
                 anomalies.append(f"Consecutive invalid values: {formatted_values}")
 
         for idx, val in enumerate(series.mes_values):
@@ -51,7 +53,7 @@ class ZeroSpikeDetector(SeriesValidator):
 
 
 class ThresholdDetector(SeriesValidator):
-    def __init__(self, threshold):
+    def __init__(self, threshold: float) -> None:
         if threshold < 0: raise ValueError('Threshold must be non-negative')
         self.threshold = threshold
 
@@ -67,32 +69,30 @@ class CompositeValidator(SeriesValidator):
         AND = 'and'
         OR = 'or'
 
-    def __init__(self, validators:List[SeriesValidator], logic_mode:LogicMode = LogicMode.OR):
+    def __init__(self, validators:List[SeriesValidator], logic_mode:LogicMode = LogicMode.OR) -> None:
         if not isinstance(logic_mode, CompositeValidator.LogicMode) or not all(isinstance(x, SeriesValidator) for x in validators):
             raise ValueError('Unexpected arguments types')
         self.validators = validators
         self.mode = logic_mode
 
-    """     
-    # Version where OR return all anomalies, AND return anomalies only if they occured on all validators
+       
     def analyze(self, series:TimeSeries) -> List[str]:
-        all_messages = []
+        all_messages: List[str] = []
 
         if self.mode == CompositeValidator.LogicMode.OR:
             for validator in self.validators:
-                messages = validator.analyze(series)
-                all_messages.extend(messages)
+                all_messages.extend(validator.analyze(series))
         elif self.mode == CompositeValidator.LogicMode.AND:
             for validator in self.validators:
-                current_messages = validator.analyze(series)
+                current_messages: List[str] = validator.analyze(series)
                 if not current_messages:
                     return []
                 all_messages.extend(current_messages)
 
         return all_messages 
-        """
+        
 
-    def __get_all_messages(self, series: TimeSeries):
+"""     def __get_all_messages(self, series: TimeSeries):
         all_messages = []
         date_pattern = re.compile(r'^.*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}).*$')
 
@@ -102,10 +102,10 @@ class CompositeValidator(SeriesValidator):
             all_messages.append(deque())
 
             for m in messages:
-                dates = date_pattern.findall(m)
+                dates: List[datetime] = date_pattern.findall(m)
                 if dates:
                     # Assuming the start of the anomaly is the most important
-                    latest = min(datetime.strptime(d, "%Y-%m-%d %H:%M:%S") for d in dates)
+                    latest: datetime = min(datetime.strptime(d, "%Y-%m-%d %H:%M:%S") for d in dates)
                     all_messages[-1].append((latest, m, val_idx))
 
         return all_messages
@@ -165,7 +165,7 @@ class CompositeValidator(SeriesValidator):
         else:
             raise ValueError('Unsupported mode {self.mode}')
         
-        return result 
+        return result  """
 
 
 
@@ -174,13 +174,13 @@ if __name__ == '__main__':
     measurments = [2.1, 4.2, 1.2, 2, 0, None, 0, None, 0]
     series = TimeSeries('DsOsieczow21', 'Jony_PM25', '24g', 'ug/m3', dates, measurments)
  
-    """ 
     print(OutlierDetector(0.5).analyze(series))
     print(ZeroSpikeDetector().analyze(series)) 
-    """
+    
 
     print(OutlierDetector(1.85).analyze(series))
     print(OutlierDetector(0.2).analyze(series))
     print(OutlierDetector(0.1).analyze(series))
 
     print(CompositeValidator([OutlierDetector(0.85), OutlierDetector(0.2), OutlierDetector(0.1)], CompositeValidator.LogicMode.OR).analyze(series))
+

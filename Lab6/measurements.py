@@ -1,20 +1,22 @@
 import sys
 from pathlib import Path
+from simple_reporter import SimpleReporter
 
-from Lab6.simple_reporter import SimpleReporter
-
-sys.path.append(str(Path(__file__).parent.parent))
 import csv
 import os
 import re
 from functools import reduce
 import time_series
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from Lab5.parser import *
 from series_validator import *
 from time_series import TimeSeries
+from typing import Pattern
 
-filename_pattern = re.compile(r'.*(?P<year>\d{4})_(?P<parameter>.+)_(?P<frequency>[^_]+)\.csv$')
+
+filename_pattern: Pattern = re.compile(r'.*(?P<year>\d{4})_(?P<parameter>.+)_(?P<frequency>[^_]+)\.csv$')
 
 class Measurements:
     def __init__(self, path):
@@ -105,5 +107,5 @@ class Measurements:
 if __name__ == "__main__":
     test = Measurements("../Lab5/data")
     validators = [ThresholdDetector(70), SimpleReporter()]
-    print(test.get_by_station('DsOsieczow21'))
+    # print(test.get_by_station('DsOsieczow21'))
     print(test.detect_all_anomalies(validators, preload=True))

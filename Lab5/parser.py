@@ -1,5 +1,6 @@
 import csv
-import console_logger, logging
+import logging
+from Lab5 import console_logger
 import os
 from pathlib import Path
 from os import listdir
@@ -134,6 +135,6 @@ def parse_metadata(path, enable_logging=False, as_dict=False,) -> dict | list:
 
 
 if __name__ == '__main__':
-    # print(parse_data('data/measurements/2023_As(PM10)_24g.csv')[0])
+    print(parse_data('data/measurements/2023_As(PM10)_24g.csv')[0])
     # print()
-    print(parse_metadata('data/stacje.csv')[0])
+    # print(parse_metadata('data/stacje.csv')[0])

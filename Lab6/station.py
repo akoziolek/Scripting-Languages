@@ -1,7 +1,7 @@
 from datetime import datetime
 
 class Station:
-    def __init__(self, code, international_code, name, old_code, start_date, closing_date, station_type, area_type, station_kind, voivodeship, city, address, latitude, longitude):
+    def __init__(self, code: str, international_code: str, name: str, old_code: str, start_date: datetime, closing_date: datetime, station_type: str, area_type: str, station_kind: str, voivodeship: str, city: str, address: str, latitude: float, longitude: float) -> None:
         self.code = code
         self.international_code = international_code
         self.name = name
@@ -17,7 +17,7 @@ class Station:
         self.latitude = latitude
         self.longitude = longitude
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f'Station code: {self.code}\n'
             f'Station international code: {self.international_code}\n'
@@ -35,10 +35,10 @@ class Station:
             f'Longitude: {self.longitude}\n'
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{self.__class__.__name__}({', '.join(f'{k}={v!r}' for k, v in vars(self).items())})'
 
-    def __eq__(self, value):
+    def __eq__(self, value: object) -> bool:
         if isinstance(value, Station):
             return self.code == value.code
         return False
