@@ -5,8 +5,6 @@ from datetime import datetime
 import numbers
 from enum import Enum
 import re
-from collections import deque
-import heapq
 from typing import List, Tuple, Optional, Union
 from statistics import StatisticsError
 
