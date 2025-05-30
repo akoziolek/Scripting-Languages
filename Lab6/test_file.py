@@ -111,7 +111,7 @@ test_cases = [
 
 
 @pytest.mark.parametrize("validators,expected_messages", test_cases)
-def test_detect_all_anomalies(sample_time_series, validators, expected_messages):
+def test_g(sample_time_series, validators, expected_messages):
     all_messages = []
     for validator in validators:
         messages = validator.analyze(sample_time_series)
