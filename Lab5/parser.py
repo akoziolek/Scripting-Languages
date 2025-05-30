@@ -1,10 +1,10 @@
+# type: ignore
 import csv
 import console_logger, logging
 import os
 from pathlib import Path
 from os import listdir
 import datetime
-
 
 logger = logging.getLogger(__name__)
 

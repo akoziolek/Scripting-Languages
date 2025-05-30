@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from time_series import TimeSeries
-from typing import List
+from typing import List, Union
 from datetime import datetime
 import numbers
 from enum import Enum
@@ -93,7 +93,7 @@ class CompositeValidator(SeriesValidator):
         """
 
     def __get_all_messages(self, series: TimeSeries):
-        all_messages = []
+        all_messages : List[deque] = []
         date_pattern = re.compile(r'^.*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}).*$')
 
         for val_idx in range(len(self.validators)):
@@ -110,10 +110,10 @@ class CompositeValidator(SeriesValidator):
 
         return all_messages
 
-    def analyze(self, series:TimeSeries) -> List[str]:
+    def analyze(self, series:TimeSeries)-> List[str]:
+        result : List[str] = []
+        heap : List[tuple] = []
         all_messages = self.__get_all_messages(series)
-        result = []
-        heap = []
 
         if self.mode == CompositeValidator.LogicMode.AND:
             current_date = None
@@ -160,7 +160,7 @@ class CompositeValidator(SeriesValidator):
                 if len(all_messages[validator_index]) > 0:
                     heapq.heappush(heap, all_messages[validator_index].popleft())
                 
-                result.append((date, message))
+                result.append(str(date) + " " + message)
 
         else:
             raise ValueError('Unsupported mode {self.mode}')
