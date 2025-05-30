@@ -7,7 +7,14 @@ from typing import List, Sequence, Union, Tuple, Dict, NoReturn, Optional
 MesValuesType = Union[float, int, str, None]
 MesDatesType = Union[datetime, str]
 
-class TimeSeries():
+class TimeSeries(): 
+    station_code: str
+    indicator: str
+    avg_time: str
+    unit: str
+    mes_dates: List[MesDatesType]
+    mes_values: List[MesValuesType]
+           
     def __init__(self, station_code: str, indicator: str, avg_time:str , unit:str,  mes_dates: Optional[Sequence[MesDatesType]] = None, mes_values: Optional[Sequence[MesValuesType]] = None) -> None:
         self.station_code = station_code
         self.indicator = indicator
