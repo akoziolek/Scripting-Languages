@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Set, Union, Iterable
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from simple_reporter import SimpleReporter
 from functools import reduce
 from Lab5.parser import parse_metadata, parse_data
