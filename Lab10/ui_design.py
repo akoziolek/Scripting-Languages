@@ -46,7 +46,7 @@ class Ui_MainWindow(object):
 
         # Browse button
         self.pushButton_browse = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_browse.setFixedWidth(22)
+        self.pushButton_browse.setFixedWidth(50)
         self.file_path_layout.addWidget(self.pushButton_browse)
 
         # Search button
@@ -78,22 +78,23 @@ class Ui_MainWindow(object):
 
         # Navigation buttons
         self.pushButton_prev = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_prev.setMaximumWidth(91)
+        self.pushButton_prev.setFixedWidth(130)
         self.main_grid_layout.addWidget(self.pushButton_prev, 3, 0, 1, 1)
 
         self.pushButton_next = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_next.setFixedWidth(130)
         self.main_grid_layout.addWidget(self.pushButton_next, 3, 6, 1, 1)
 
         # Page navigation
         self.pushButton_prev_page = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_prev_page.setFixedWidth(22)
+        self.pushButton_prev_page.setFixedWidth(50)
         self.main_grid_layout.addWidget(self.pushButton_prev_page, 3, 2, 1, 1)
 
         self.label_page = QtWidgets.QLabel(self.centralwidget)
         self.main_grid_layout.addWidget(self.label_page, 3, 3, 1, 1)
 
         self.pushButton_next_page = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_next_page.setFixedWidth(22)
+        self.pushButton_next_page.setFixedWidth(50)
         self.main_grid_layout.addWidget(self.pushButton_next_page, 3, 4, 1, 1)
 
         # Spacers
