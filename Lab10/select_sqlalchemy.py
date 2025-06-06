@@ -9,24 +9,24 @@ def get_session(database_name):
     Session = sessionmaker(bind=engine)
     return Session()
 
-def average_duration_rental_stat(database_name, rental_station_id):
+def average_duration_rental_stat(database_name, rental_station):
     session = get_session(database_name)
     avg_duration = session.query(func.avg(Rental.duration))\
-        .filter(Rental.rental_station == rental_station_id).scalar()
+        .filter(Rental.rental_station_id == rental_station).scalar()
     session.close()
     return round(avg_duration, 2) if avg_duration else None
 
 def average_duration_return_stat(database_name, return_station_id):
     session = get_session(database_name)
     avg_duration = session.query(func.avg(Rental.duration))\
-        .filter(Rental.return_station == return_station_id).scalar()
+        .filter(Rental.return_station_id == return_station_id).scalar()
     session.close()
     return round(avg_duration, 2) if avg_duration else None
 
 def num_of_diff_bikes(database_name, station_id):
     session = get_session(database_name)
     count = session.query(func.count(distinct(Rental.bike_number)))\
-        .filter(Rental.return_station == station_id).scalar()
+        .filter(Rental.return_station_id == station_id).scalar()
     session.close()
     return count if count else None
 
@@ -44,8 +44,8 @@ def logs_by_station(database_name, station_name):
         Rental.end_time,
         rs_alias.station_name.label('rental_station_name'),
         ret_alias.station_name.label('return_station_name'),
-    ).join(rs_alias, Rental.rental_station == rs_alias.id)\
-     .join(ret_alias, Rental.return_station == ret_alias.id)\
+    ).join(rs_alias, Rental.rental_station_id == rs_alias.id)\
+     .join(ret_alias, Rental.return_station_id == ret_alias.id)\
      .filter(or_(rs_alias.station_name == station_name, ret_alias.station_name == station_name))\
      .order_by(Rental.start_time).all()
 
@@ -104,9 +104,9 @@ def most_common_return_station(database_name, rental_station_id):
     res = session.query(
         Station.station_name,
         func.count(Rental.id).label('count')
-    ).join(Rental, Rental.return_station == Station.id)\
-     .filter(Rental.rental_station == rental_station_id)\
-     .group_by(Rental.return_station)\
+    ).join(Rental, Rental.return_station_id == Station.id)\
+     .filter(Rental.rental_station_id == rental_station_id)\
+     .group_by(Rental.return_station_id)\
      .order_by(desc('count'))\
      .limit(1).first()
     session.close()
