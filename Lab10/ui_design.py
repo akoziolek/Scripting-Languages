@@ -9,7 +9,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        # ===== Main Window Configuration =====
+        #  Main Window Configuration 
         MainWindow.setObjectName("MainWindow")
         MainWindow.setWindowModality(QtCore.Qt.ApplicationModal)
         MainWindow.resize(915, 514)
@@ -26,14 +26,14 @@ class Ui_MainWindow(object):
         MainWindow.setTabShape(QtWidgets.QTabWidget.Triangular)
         MainWindow.setUnifiedTitleAndToolBarOnMac(False)
 
-        # ===== Central Widget and Main Layout =====
+        #  Central Widget and Main Layout 
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
         self.main_vertical_layout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.main_vertical_layout.setObjectName("main_vertical_layout")
 
-        # ===== File Path Section =====
+        #  File Path Section 
         self.file_path_layout = QtWidgets.QHBoxLayout()
         self.file_path_layout.setObjectName("file_path_layout")
 
@@ -64,17 +64,18 @@ class Ui_MainWindow(object):
         self.divider_line_1 = self._create_horizontal_divider()
         self.main_vertical_layout.addWidget(self.divider_line_1)
 
-        # ===== Main Content Grid =====
+        #  Main Content Grid 
         self.main_grid_layout = QtWidgets.QGridLayout()
         self.main_grid_layout.setObjectName("main_grid_layout")
 
-        # ===== Table Selection Section =====
+        #  Table Selection Section 
         self.label_choice = QtWidgets.QLabel(self.centralwidget)
         self._set_bold_font(self.label_choice)
         self.main_grid_layout.addWidget(self.label_choice, 0, 0, 1, 1)
 
-        self.comboBox_table = QtWidgets.QComboBox(self.centralwidget)
-        self.main_grid_layout.addWidget(self.comboBox_table, 0, 1, 1, 1)
+        self.comboBox_station = QtWidgets.QComboBox(self.centralwidget)
+        self.comboBox_station.setFixedWidth(600)
+        self.main_grid_layout.addWidget(self.comboBox_station, 0, 1, 1, 1)
 
         # Navigation buttons
         self.pushButton_prev = QtWidgets.QPushButton(self.centralwidget)
@@ -85,29 +86,30 @@ class Ui_MainWindow(object):
         self.pushButton_next.setFixedWidth(130)
         self.main_grid_layout.addWidget(self.pushButton_next, 3, 6, 1, 1)
 
-        # Page navigation
+        # Create a container widget for the pagination controls
+        self.page_nav_widget = QtWidgets.QWidget(self.centralwidget)
+        self.page_nav_layout = QtWidgets.QHBoxLayout(self.page_nav_widget)
+        self.page_nav_layout.setContentsMargins(0, 0, 0, 0)
+        self.page_nav_layout.setSpacing(10)
+        self.page_nav_layout.setAlignment(QtCore.Qt.AlignCenter)  # ✅ Center align items
+
+        # Create and add pagination buttons and label
         self.pushButton_prev_page = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_prev_page.setFixedWidth(50)
-        self.main_grid_layout.addWidget(self.pushButton_prev_page, 3, 2, 1, 1)
+        self.page_nav_layout.addWidget(self.pushButton_prev_page)
 
         self.label_page = QtWidgets.QLabel(self.centralwidget)
-        self.main_grid_layout.addWidget(self.label_page, 3, 3, 1, 1)
+        self.page_nav_layout.addWidget(self.label_page)
 
         self.pushButton_next_page = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_next_page.setFixedWidth(50)
-        self.main_grid_layout.addWidget(self.pushButton_next_page, 3, 4, 1, 1)
+        self.page_nav_layout.addWidget(self.pushButton_next_page)
 
-        # Spacers
-        self.main_grid_layout.addItem(
-            QtWidgets.QSpacerItem(188, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum),
-            3, 1, 1, 1
-        )
-        self.main_grid_layout.addItem(
-            QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum),
-            3, 5, 1, 1
-        )
+        # Add the pagination widget to the grid layout, spanning columns between prev and next
+        self.main_grid_layout.addWidget(self.page_nav_widget, 3, 1, 1, 5)
 
-        # ===== Data Table =====
+
+        #  Data Table 
         self.tableWidget_records = QtWidgets.QTableWidget(self.centralwidget)
         self.tableWidget_records.setColumnCount(0)
         self.tableWidget_records.setRowCount(0)
@@ -116,7 +118,7 @@ class Ui_MainWindow(object):
         # Column stretch
         self.main_grid_layout.setColumnStretch(0, 1)
 
-        # ===== Statistics Panel =====
+        #  Statistics Panel 
         self.label_stats = QtWidgets.QLabel(self.centralwidget)
         self._set_bold_font(self.label_stats)
         self.main_grid_layout.addWidget(self.label_stats, 0, 7, 1, 1)
@@ -130,7 +132,7 @@ class Ui_MainWindow(object):
         self.divider_line_2 = self._create_horizontal_divider()
         self.main_vertical_layout.addWidget(self.divider_line_2)
 
-        # ===== Status Bar =====
+        #  Status Bar 
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         MainWindow.setStatusBar(self.statusbar)
 
@@ -140,21 +142,18 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def _create_horizontal_divider(self):
-        """Helper to create consistent divider lines"""
         line = QtWidgets.QFrame(self.centralwidget)
         line.setFrameShape(QtWidgets.QFrame.HLine)
         line.setFrameShadow(QtWidgets.QFrame.Sunken)
         return line
 
     def _set_bold_font(self, widget):
-        """Helper to apply bold font to labels"""
         font = QtGui.QFont()
         font.setBold(True)
         font.setWeight(75)
         widget.setFont(font)
 
     def _create_stats_panel(self):
-        """Creates the statistics panel with all metrics"""
         stats_layout = QtWidgets.QVBoxLayout()
 
         # Statistic 1: Average rental duration
@@ -215,7 +214,7 @@ class Ui_MainWindow(object):
         self.pushButton_search.setText(_translate("MainWindow", "Szukaj"))
 
         # Table section
-        self.label_choice.setText(_translate("MainWindow", "Wybrana tabela:"))
+        self.label_choice.setText(_translate("MainWindow", "Wybrana stacja:"))
         self.pushButton_prev.setText(_translate("MainWindow", "Poprzedni"))
         self.pushButton_next.setText(_translate("MainWindow", "Następny"))
         self.label_page.setText(_translate("MainWindow", "0 z 0"))
@@ -225,10 +224,10 @@ class Ui_MainWindow(object):
         # Statistics section
         self.label_stats.setText(_translate("MainWindow", "Statystyki:"))
         self.label_stat1.setText(_translate("MainWindow", "Średni czas trwania przejazdu rozpoczynanego na stacji: "))
-        self.label_stat1_res.setText(_translate("MainWindow", "2132,12"))
+        self.label_stat1_res.setText(_translate("MainWindow", "-"))
         self.label_stat2.setText(_translate("MainWindow", "Średni czas trwania przejazdu kończonego na stacji: "))
-        self.label_stat2_res.setText(_translate("MainWindow", "4212"))
+        self.label_stat2_res.setText(_translate("MainWindow", "-"))
         self.label_stat3.setText(_translate("MainWindow", "Liczba różnych rowerów parkowanych na danej stacji:"))
-        self.label_stat3_res.setText(_translate("MainWindow", "0"))
-        self.label_stat4.setText(_translate("MainWindow", "Niespodzianka: ?"))
-        self.label_stat4_res.setText(_translate("MainWindow", "6546"))
+        self.label_stat3_res.setText(_translate("MainWindow", "-"))
+        self.label_stat4.setText(_translate("MainWindow", "Najczęstsza stacja docelowa"))
+        self.label_stat4_res.setText(_translate("MainWindow", "-"))

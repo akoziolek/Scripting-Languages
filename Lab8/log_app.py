@@ -1,5 +1,6 @@
 import sys
 
+from PyQt5.QtWidgets import QMessageBox
 from PySide6 import QtWidgets
 from PySide6.QtWidgets import (QApplication, QMainWindow, QLabel, QWidget, QVBoxLayout, QHBoxLayout,
                                QPushButton, QLineEdit, QListWidget, QDateTimeEdit, QSizePolicy, QGroupBox, QFormLayout,
@@ -110,8 +111,9 @@ class MainWindow(QMainWindow):
             dir = os.getcwd(),
             filter="Log Files (*.log)"
         )
-        self.searching_widget.set_field(file_path)
-        self.handle_search(file_path)
+        if file_path:
+            self.searching_widget.set_field(file_path)
+            self.handle_search(file_path)
 
     def handle_filtering(self, timestamp_begin, timestamp_end):
         if self.lookup_from_string is None:
