@@ -16,7 +16,6 @@ def init_database(database_name, force=False):
     conn.execute("PRAGMA foreign_keys = 1")
     c = conn.cursor()
     
-    #ewentualnie mozna miec tez czas trwania, ale aktualnie zakladam, że możemy go po prostu obliczyc
     c.execute('''CREATE TABLE Rentals
               (id INTEGER PRIMARY KEY, 
               bike_number INTEGER NOT NULL,
